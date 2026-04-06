@@ -4,7 +4,6 @@ import {
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword,
   signOut as firebaseSignOut,
-  onAuthStateChanged,
   User
 } from 'firebase/auth';
 import { 
@@ -16,12 +15,20 @@ import { auth, db } from './firebase';
 const TOKEN_KEY = 'nhungmov_token';
 const USER_KEY = 'nhungmov_user';
 
+const isFirebaseConfigured = () => {
+  return process.env.NEXT_PUBLIC_FIREBASE_API_KEY && 
+         process.env.NEXT_PUBLIC_FIREBASE_API_KEY !== 'dummy';
+};
+
 export interface LoginResult {
   success: boolean;
   message?: string;
 }
 
 export async function login(email: string, password: string): Promise<LoginResult> {
+  if (!isFirebaseConfigured()) {
+    return { success: false, message: 'Firebase not configured' };
+  }
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const token = await userCredential.user.getIdToken();
@@ -39,6 +46,9 @@ export async function login(email: string, password: string): Promise<LoginResul
 }
 
 export async function register(email: string, username: string, password: string): Promise<LoginResult> {
+  if (!isFirebaseConfigured()) {
+    return { success: false, message: 'Firebase not configured' };
+  }
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     await setDoc(doc(db, 'users', userCredential.user.uid), {
@@ -61,7 +71,9 @@ export async function register(email: string, username: string, password: string
 }
 
 export function logout(): void {
-  firebaseSignOut(auth);
+  if (isFirebaseConfigured()) {
+    firebaseSignOut(auth);
+  }
   removeToken();
   localStorage.removeItem(USER_KEY);
 }
@@ -94,7 +106,7 @@ export function getCurrentUser(): { id: string; email: string; username: string 
 
 export async function getFavorites(): Promise<string[]> {
   const user = getCurrentUser();
-  if (!user) return [];
+  if (!user || !isFirebaseConfigured()) return [];
   try {
     const q = query(collection(db, 'favorites'), where('userId', '==', user.id));
     const snapshot = await getDocs(q);
@@ -106,7 +118,7 @@ export async function getFavorites(): Promise<string[]> {
 
 export async function addFavorite(slug: string): Promise<void> {
   const user = getCurrentUser();
-  if (!user) return;
+  if (!user || !isFirebaseConfigured()) return;
   const q = query(collection(db, 'favorites'), where('userId', '==', user.id), where('slug', '==', slug));
   const snapshot = await getDocs(q);
   if (snapshot.empty) {
@@ -120,7 +132,7 @@ export async function addFavorite(slug: string): Promise<void> {
 
 export async function removeFavorite(slug: string): Promise<void> {
   const user = getCurrentUser();
-  if (!user) return;
+  if (!user || !isFirebaseConfigured()) return;
   const q = query(collection(db, 'favorites'), where('userId', '==', user.id), where('slug', '==', slug));
   const snapshot = await getDocs(q);
   for (const docSnap of snapshot.docs) {
@@ -130,7 +142,7 @@ export async function removeFavorite(slug: string): Promise<void> {
 
 export async function checkFavorite(slug: string): Promise<boolean> {
   const user = getCurrentUser();
-  if (!user) return false;
+  if (!user || !isFirebaseConfigured()) return false;
   const q = query(collection(db, 'favorites'), where('userId', '==', user.id), where('slug', '==', slug));
   const snapshot = await getDocs(q);
   return !snapshot.empty;
@@ -138,7 +150,7 @@ export async function checkFavorite(slug: string): Promise<boolean> {
 
 export async function getHistory(): Promise<Array<{ slug: string; watchedAt: string }>> {
   const user = getCurrentUser();
-  if (!user) return [];
+  if (!user || !isFirebaseConfigured()) return [];
   try {
     const q = query(collection(db, 'history'), where('userId', '==', user.id));
     const snapshot = await getDocs(q);
@@ -153,7 +165,7 @@ export async function getHistory(): Promise<Array<{ slug: string; watchedAt: str
 
 export async function addHistory(slug: string): Promise<void> {
   const user = getCurrentUser();
-  if (!user) return;
+  if (!user || !isFirebaseConfigured()) return;
   const q = query(collection(db, 'history'), where('userId', '==', user.id), where('slug', '==', slug));
   const snapshot = await getDocs(q);
   if (!snapshot.empty) {
@@ -169,7 +181,7 @@ export async function addHistory(slug: string): Promise<void> {
 
 export async function removeHistory(slug: string): Promise<void> {
   const user = getCurrentUser();
-  if (!user) return;
+  if (!user || !isFirebaseConfigured()) return;
   const q = query(collection(db, 'history'), where('userId', '==', user.id), where('slug', '==', slug));
   const snapshot = await getDocs(q);
   for (const docSnap of snapshot.docs) {
@@ -179,7 +191,7 @@ export async function removeHistory(slug: string): Promise<void> {
 
 export async function clearHistory(): Promise<void> {
   const user = getCurrentUser();
-  if (!user) return;
+  if (!user || !isFirebaseConfigured()) return;
   const q = query(collection(db, 'history'), where('userId', '==', user.id));
   const snapshot = await getDocs(q);
   for (const docSnap of snapshot.docs) {
@@ -195,6 +207,7 @@ export async function getComments(slug: string): Promise<Array<{
   rating: number;
   createdAt: string;
 }>> {
+  if (!isFirebaseConfigured()) return [];
   try {
     const q = query(collection(db, 'comments'), where('slug', '==', slug));
     const snapshot = await getDocs(q);
@@ -223,7 +236,7 @@ export async function addComment(slug: string, content: string, rating: number =
   createdAt: string;
 } | null> {
   const user = getCurrentUser();
-  if (!user) return null;
+  if (!user || !isFirebaseConfigured()) return null;
   try {
     const docRef = await addDoc(collection(db, 'comments'), {
       slug,
@@ -247,5 +260,6 @@ export async function addComment(slug: string, content: string, rating: number =
 }
 
 export async function deleteComment(commentId: string, _slug: string): Promise<void> {
+  if (!isFirebaseConfigured()) return;
   await deleteDoc(doc(db, 'comments', commentId));
 }
