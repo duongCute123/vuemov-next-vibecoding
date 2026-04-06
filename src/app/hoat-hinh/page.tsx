@@ -3,7 +3,6 @@ import MovieCard from "@/components/MovieCard";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { getNewUpdatedMovies, getTheLoaiList, resolveImageUrl } from "@/lib/phimapi";
-import { log } from "console";
 
 export default async function HoatHinhPage({
   searchParams,
@@ -16,11 +15,6 @@ export default async function HoatHinhPage({
 
   const categories = await getTheLoaiList();
   const animeMovies = await getNewUpdatedMovies({ page, limit: 15, type_list: "hoat-hinh" });
-  const apiUrl = `https://phimapi.com/v1/api/danh-sach/hoat-hinh?page=${page}&sort_field=modified.time&sort_type=desc&sort_lang=vietsub&limit=15`;
-  console.log('API URL:', apiUrl);
-  console.log(animeMovies)
-  console.log('Anime page - items:', animeMovies.items.length);
-  console.log('Anime page - first:', animeMovies.items[0]?.name);
 
   const topCategories = categories.slice(0, 12);
   const prevPage = Math.max(1, page - 1);

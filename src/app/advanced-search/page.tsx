@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import MovieCard from '@/components/MovieCard';
-import { getTheLoaiList, getQuocGiaList, resolveImageUrl } from '@/lib/kkphim-api';
+import { getTheLoaiList, getQuocGiaList, resolveImageUrl, type MovieListItem, type TheLoaiItem, type QuocGiaItem, PHIMAPI_BASE } from '@/lib/phimapi';
 import { useAuth } from '@/lib/auth-context';
 
 interface FilterOptions {
@@ -64,7 +64,7 @@ export default function AdvancedSearchPage() {
       const hasFilters = filters.category || filters.country || filters.year || filters.quality || filters.type;
 
       if (q || hasFilters) {
-        url = `https://phimapi.com/v1/api/tim-kiem?page=${pageNum}&limit=24&sort_field=_id&sort_type=desc`;
+        url = `${PHIMAPI_BASE}/v1/api/tim-kiem?page=${pageNum}&limit=24&sort_field=_id&sort_type=desc`;
         
         if (q) {
           url += `&keyword=${encodeURIComponent(q)}`;
@@ -85,12 +85,12 @@ export default function AdvancedSearchPage() {
           url += `&type_list=${encodeURIComponent(filters.type)}`;
         }
 
-        const res = await fetch(url, { headers: { 'User-Agent': 'vuemov-next/1.0' } });
+        const res = await fetch(url, { headers: { 'User-Agent': 'NhungMov/1.0' } });
         const data = await res.json();
         
         if (data.status === false && data.msg?.includes('keyword')) {
           if (filters.type || filters.category || filters.country || filters.year || filters.quality) {
-            url = `https://phimapi.com/v1/api/danh-sach/${filters.type || 'phim-vietsub'}?page=${pageNum}&sort_field=modified.time&sort_type=desc&limit=24`;
+            url = `${PHIMAPI_BASE}/v1/api/danh-sach/${filters.type || 'phim-vietsub'}?page=${pageNum}&sort_field=modified.time&sort_type=desc&limit=24`;
             
             if (filters.category) {
               url += `&category=${encodeURIComponent(filters.category)}`;
@@ -102,7 +102,7 @@ export default function AdvancedSearchPage() {
               url += `&year=${filters.year}`;
             }
             
-            const res2 = await fetch(url, { headers: { 'User-Agent': 'vuemov-next/1.0' } });
+            const res2 = await fetch(url, { headers: { 'User-Agent': 'NhungMov/1.0' } });
             const data2 = await res2.json();
             const items = data2.data?.items || [];
             
@@ -126,7 +126,7 @@ export default function AdvancedSearchPage() {
         }
         setHasMore(items.length === 24);
       } else {
-        const res = await fetch(`https://phimapi.com/v1/api/danh-sach/phim-vietsub?page=${pageNum}&sort_field=modified.time&sort_type=desc&limit=24`, { headers: { 'User-Agent': 'vuemov-next/1.0' } });
+        const res = await fetch(`${PHIMAPI_BASE}/v1/api/danh-sach/phim-vietsub?page=${pageNum}&sort_field=modified.time&sort_type=desc&limit=24`, { headers: { 'User-Agent': 'NhungMov/1.0' } });
         const data = await res.json();
         const items = data.data?.items || [];
         

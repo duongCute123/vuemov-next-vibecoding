@@ -1,5 +1,5 @@
-export const PHIMAPI_BASE = "https://phimapi.com";
-export const PHIMIMG_CDN = "https://phimimg.com";
+export const PHIMAPI_BASE = process.env.NEXT_PUBLIC_PHIMAPI_BASE || "https://phimapi.com";
+export const PHIMIMG_CDN = process.env.NEXT_PUBLIC_PHIMIMG_CDN || "https://phimimg.com";
 
 export function resolveImageUrl(url?: string | null): string | null {
   if (!url) return null;
