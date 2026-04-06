@@ -8,7 +8,6 @@ import {
 
 interface Comment {
   id: string;
-  slug: string;
   userId: string;
   username: string;
   content: string;

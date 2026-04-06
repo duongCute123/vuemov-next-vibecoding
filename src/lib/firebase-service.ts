@@ -93,5 +93,3 @@ export async function addComment(
 export async function deleteComment(slug: string, commentId: string): Promise<void> {
   return apiDeleteComment(commentId, slug);
 }
-
-export * from './api-service';
