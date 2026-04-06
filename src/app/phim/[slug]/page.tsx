@@ -20,15 +20,37 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const title = movie?.name || movie?.origin_name || "Phim";
   const description = movie?.content ? stripHtml(movie.content).slice(0, 160) : `Xem phim ${title} chất lượng cao tại NhungMov.`;
   const imageUrl = resolveImageUrl(movie?.poster_url || movie?.thumb_url);
+  const keywords = [
+    `xem phim ${title}`,
+    title,
+    movie?.origin_name,
+    movie?.director,
+    "xem phim online",
+    "phim vietsub",
+    "phim hd",
+  ].filter(Boolean).join(', ');
 
   return {
     title: `${title} - Xem phim HD Vietsub | NhungMov`,
     description,
+    keywords,
     openGraph: {
       title,
       description,
-      images: imageUrl ? [imageUrl] : [],
+      url: `https://nhungmov.vercel.app/phim/${slug}`,
+      siteName: 'NhungMov',
+      images: imageUrl ? [{ url: imageUrl, width: 600, height: 900, alt: title }] : [],
       type: "video.movie",
+      locale: "vi_VN",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} - Xem phim HD | NhungMov`,
+      description,
+      images: imageUrl ? [imageUrl] : [],
+    },
+    alternates: {
+      canonical: `https://nhungmov.vercel.app/phim/${slug}`,
     },
   };
 }

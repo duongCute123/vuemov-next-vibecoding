@@ -28,7 +28,7 @@ export default async function CategoryPage({
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
       <header className="sticky top-0 z-20 bg-zinc-900/95 backdrop-blur border-b border-zinc-800">
         <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-          <Link href="/" className="text-2xl font-black text-cyan-300">ThunMov Clone</Link>
+          <Link href="/" className="text-2xl font-black text-cyan-300">NhungMov</Link>
           <nav className="hidden sm:flex gap-3 text-sm text-zinc-300">
             <Link href="/" className="hover:text-white">Trang chủ</Link>
             <Link href="/phim" className="hover:text-white">Phim</Link>

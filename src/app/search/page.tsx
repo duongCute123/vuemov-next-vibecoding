@@ -1,6 +1,15 @@
 import Link from "next/link";
 import MovieCard from "@/components/MovieCard";
 import { getTheLoaiList, resolveImageUrl, searchMovies } from "@/lib/phimapi";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Tìm kiếm phim - NhungMov",
+  description: "Tìm kiếm phim yêu thích. Xem phim online miễn phí, phim vietsub, phim hd chất lượng cao.",
+  alternates: {
+    canonical: "https://nhungmov.vercel.app/search",
+  },
+};
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string; page?: string }> }) {
   const { q: rawQ, page: rawPage } = await searchParams;

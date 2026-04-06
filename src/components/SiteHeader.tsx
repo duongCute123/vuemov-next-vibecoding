@@ -99,15 +99,15 @@ export default function SiteHeader({
         <div className="relative mx-auto max-w-7xl px-4">
           <div className="flex items-center justify-between gap-4 py-3">
             <div className="flex items-center gap-6">
-              <Link href="/" className="group flex items-center gap-3" aria-label="ThunMov - Trang chủ">
+              <Link href="/" className="group flex items-center gap-3" aria-label="NhungMov - Trang chủ">
                 <div className="relative">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 flex items-center justify-center shadow-lg shadow-purple-500/40 group-hover:shadow-purple-500/60 transition-all duration-300 group-hover:scale-110">
-                    <span className="text-lg font-black text-white">T</span>
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 via-blue-500 to-purple-500 flex items-center justify-center shadow-lg shadow-cyan-500/40 group-hover:shadow-cyan-500/60 transition-all duration-300 group-hover:scale-110">
+                    <span className="text-lg font-black text-white">N</span>
                   </div>
-                  <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-300" />
+                  <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-300" />
                 </div>
-                <span className="text-xl font-black bg-gradient-to-r from-white via-pink-200 to-purple-200 bg-clip-text text-transparent">
-                  ThunMov
+                <span className="text-xl font-black bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+                  NhungMov
                 </span>
               </Link>
             </div>
