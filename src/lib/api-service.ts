@@ -18,7 +18,10 @@ export interface User {
 
 async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = getToken();
-  const response = await fetch(`${BACKEND_URL}${endpoint}`, {
+  const url = `${BACKEND_URL}${endpoint}`;
+  console.log('fetchApi called:', { url, method: options.method, token: token ? 'yes' : 'no' });
+  
+  const response = await fetch(url, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -27,49 +30,86 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
     },
   });
   
+  console.log('fetchApi response status:', response.status);
+  
+  const text = await response.text();
+  console.log('fetchApi response text:', text.substring(0, 500));
+  
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Request failed' }));
-    throw new Error(error.message || 'Request failed');
+    try {
+      const error = JSON.parse(text);
+      throw new Error(error.message || 'Request failed');
+    } catch {
+      throw new Error(`Request failed: ${response.status}`);
+    }
   }
   
-  return response.json();
+  if (!text) return {} as T;
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    return {} as T;
+  }
 }
 
 export async function login(email: string, password: string): Promise<LoginResult> {
+  const url = `${BACKEND_URL}/api/auth/login`;
+  console.log('Login request to:', url);
+  
   try {
-    const data = await fetchApi<{ success: boolean; token?: string; user?: User; message?: string }>('/api/auth/login', {
+    const response = await fetch(url, {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
     });
     
-    if (data.success && data.token) {
-      setToken(data.token);
-      if (data.user) {
-        localStorage.setItem(USER_KEY, JSON.stringify(data.user));
+    const text = await response.text();
+    console.log('Login response status:', response.status);
+    console.log('Login response text:', text);
+    
+    if (!response.ok) {
+      try {
+        const error = JSON.parse(text);
+        return { success: false, message: error.message || 'Login failed' };
+      } catch {
+        return { success: false, message: `Login failed: ${response.status}` };
       }
-      return { success: true };
     }
-    return { success: false, message: data.message || 'Login failed' };
+    
+    try {
+      const data = JSON.parse(text);
+      if (data.success && data.data?.token) {
+        setToken(data.data.token);
+        const user: User = { id: data.data.id, email: data.data.email, username: data.data.username, avatar: data.data.avatar };
+        localStorage.setItem(USER_KEY, JSON.stringify(user));
+        console.log('Login success:', user);
+        return { success: true };
+      }
+      return { success: false, message: data.message || 'Login failed' };
+    } catch (e) {
+      console.error('JSON parse error:', e);
+      return { success: false, message: 'Login failed: Invalid response' };
+    }
   } catch (error: any) {
+    console.error('Login error:', error.message);
     return { success: false, message: error.message || 'Login failed' };
   }
 }
 
 export async function register(email: string, username: string, password: string): Promise<LoginResult> {
   try {
-    const data = await fetchApi<{ success: boolean; token?: string; user?: User; message?: string }>('/api/auth/register', {
+    const response = await fetchApi<{ success: boolean; message?: string; data?: { token: string; id: string; email: string; username: string; avatar?: string } }>('/api/auth/register', {
       method: 'POST',
       body: JSON.stringify({ email, username, password }),
     });
     
-    if (data.success && data.token) {
-      setToken(data.token);
-      if (data.user) {
-        localStorage.setItem(USER_KEY, JSON.stringify(data.user));
-      }
+    if (response.success && response.data?.token) {
+      setToken(response.data.token);
+      const user: User = { id: response.data.id, email: response.data.email, username: response.data.username, avatar: response.data.avatar };
+      localStorage.setItem(USER_KEY, JSON.stringify(user));
       return { success: true };
     }
-    return { success: false, message: data.message || 'Registration failed' };
+    return { success: false, message: response.message || 'Registration failed' };
   } catch (error: any) {
     return { success: false, message: error.message || 'Registration failed' };
   }
@@ -108,17 +148,16 @@ export function getCurrentUser(): User | null {
 
 export async function getFavorites(): Promise<string[]> {
   try {
-    const data = await fetchApi<{ success: boolean; favorites: string[] }>('/api/user/favorites');
-    return data.favorites || [];
+    const response = await fetchApi<{ success: boolean; data: string[] }>('/api/user/favorites');
+    return response.data || [];
   } catch {
     return [];
   }
 }
 
 export async function addFavorite(slug: string): Promise<void> {
-  await fetchApi('/api/user/favorites', {
+  await fetchApi(`/api/user/favorites/${slug}`, {
     method: 'POST',
-    body: JSON.stringify({ slug }),
   });
 }
 
@@ -130,8 +169,8 @@ export async function removeFavorite(slug: string): Promise<void> {
 
 export async function checkFavorite(slug: string): Promise<boolean> {
   try {
-    const data = await fetchApi<{ success: boolean; isFavorite: boolean }>(`/api/user/favorites/${slug}`);
-    return data.isFavorite || false;
+    const response = await fetchApi<{ success: boolean; data: { isFavorite: boolean } }>(`/api/user/favorites/${slug}/check`);
+    return response.data?.isFavorite || false;
   } catch {
     return false;
   }
@@ -139,17 +178,16 @@ export async function checkFavorite(slug: string): Promise<boolean> {
 
 export async function getHistory(): Promise<Array<{ slug: string; watchedAt: string }>> {
   try {
-    const data = await fetchApi<{ success: boolean; history: Array<{ slug: string; watchedAt: string }> }>('/api/user/history');
-    return data.history || [];
+    const response = await fetchApi<{ success: boolean; data: Array<{ slug: string; watchedAt: string }> }>('/api/user/history');
+    return response.data || [];
   } catch {
     return [];
   }
 }
 
 export async function addHistory(slug: string): Promise<void> {
-  await fetchApi('/api/user/history', {
+  await fetchApi(`/api/user/history/${slug}`, {
     method: 'POST',
-    body: JSON.stringify({ slug }),
   });
 }
 
@@ -174,7 +212,7 @@ export async function getComments(slug: string): Promise<Array<{
   createdAt: string;
 }>> {
   try {
-    const data = await fetchApi<{ success: boolean; comments: Array<{
+    const response = await fetchApi<{ success: boolean; data: Array<{
       id: string;
       userId: string;
       username: string;
@@ -182,7 +220,7 @@ export async function getComments(slug: string): Promise<Array<{
       rating: number;
       createdAt: string;
     }> }>(`/api/comments/${slug}`);
-    return data.comments || [];
+    return response.data || [];
   } catch {
     return [];
   }
@@ -197,25 +235,34 @@ export async function addComment(slug: string, content: string, rating: number =
   createdAt: string;
 } | null> {
   try {
-    const data = await fetchApi<{ success: boolean; comment: {
+    const response = await fetchApi<{ success: boolean; data: {
       id: string;
       userId: string;
       username: string;
       content: string;
       rating: number;
       createdAt: string;
-    } }>(`/api/comments/${slug}`, {
+    } }>('/api/comments', {
       method: 'POST',
-      body: JSON.stringify({ content, rating }),
+      body: JSON.stringify({ slug, content, rating }),
     });
-    return data.comment || null;
+    return response.data || null;
   } catch {
     return null;
   }
 }
 
-export async function deleteComment(commentId: string, slug: string): Promise<void> {
-  await fetchApi(`/api/comments/${slug}/${commentId}`, {
+export async function deleteComment(commentId: string): Promise<void> {
+  await fetchApi(`/api/comments/${commentId}`, {
     method: 'DELETE',
   });
+}
+
+export async function checkHealth(): Promise<boolean> {
+  try {
+    const response = await fetchApi<{ success: boolean; data: { status: string } }>('/api/health');
+    return response.data?.status === 'OK';
+  } catch {
+    return false;
+  }
 }

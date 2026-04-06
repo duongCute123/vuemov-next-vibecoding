@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth-context';
+import { getComments, addComment as apiAddComment, deleteComment as apiDeleteComment } from '@/lib/api-service';
 
 interface Comment {
   id: string;
@@ -31,13 +32,8 @@ export default function CommentsSection({ slug, movieTitle }: CommentsSectionPro
 
   const loadComments = async () => {
     try {
-      const res = await fetch('/api/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'getComments', slug }),
-      });
-      const data = await res.json();
-      setComments(data.comments || []);
+      const comments = await getComments(slug);
+      setComments(comments);
     } catch (err) {
       console.error('Error loading comments:', err);
     } finally {
@@ -51,21 +47,9 @@ export default function CommentsSection({ slug, movieTitle }: CommentsSectionPro
 
     setSubmitting(true);
     try {
-      const res = await fetch('/api/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'addComment',
-          slug,
-          userId: user.id,
-          username: user.username,
-          content: newComment,
-          rating,
-        }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setComments(data.comments || []);
+      const comment = await apiAddComment(slug, newComment, rating);
+      if (comment) {
+        setComments([...comments, comment]);
         setNewComment('');
         setRating(5);
       }
@@ -79,11 +63,7 @@ export default function CommentsSection({ slug, movieTitle }: CommentsSectionPro
   const handleDelete = async (commentId: string) => {
     if (!user) return;
     try {
-      await fetch('/api/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'deleteComment', slug, commentId, userId: user.id }),
-      });
+      await apiDeleteComment(commentId);
       setComments(comments.filter(c => c.id !== commentId));
     } catch (err) {
       console.error('Error deleting comment:', err);

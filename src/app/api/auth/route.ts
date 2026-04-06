@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
 
       case 'deleteComment': {
         if (!user) return NextResponse.json({ success: false, message: 'Not authenticated' }, { status: 401 });
-        await deleteComment(data.commentId, data.slug);
+        await deleteComment(data.commentId);
         return NextResponse.json({ success: true });
       }
 

@@ -9,7 +9,7 @@ import {
   getHistory,
   removeHistory,
   clearHistory
-} from '@/lib/firebase-service';
+} from '@/lib/api-service';
 import MovieCard from '@/components/MovieCard';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';

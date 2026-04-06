@@ -3,6 +3,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/lib/auth-context";
+import { addHistory } from "@/lib/api-service";
 
 type ServerData = {
   server_name: string;
@@ -53,11 +54,7 @@ export default function EpisodePlayer(props: {
 
   useEffect(() => {
     if (user && movieSlug) {
-      fetch('/api/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'addHistory', userId: user.id, slug: movieSlug }),
-      }).catch(() => {});
+      addHistory(movieSlug).catch(() => {});
     }
   }, [user, movieSlug]);
 

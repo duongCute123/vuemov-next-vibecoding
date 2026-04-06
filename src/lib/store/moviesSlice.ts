@@ -85,9 +85,9 @@ export const addComment = createAsyncThunk(
 
 export const deleteComment = createAsyncThunk(
   'movies/deleteComment',
-  async ({ commentId, slug }: { commentId: string; slug: string }) => {
-    await deleteCommentApi(commentId, slug);
-    return { commentId, slug };
+  async ({ commentId }: { commentId: string }) => {
+    await deleteCommentApi(commentId);
+    return { commentId };
   }
 );
 
@@ -159,8 +159,8 @@ const moviesSlice = createSlice({
         }
       })
       .addCase(deleteComment.fulfilled, (state, action) => {
-        if (state.comments[action.payload.slug]) {
-          state.comments[action.payload.slug] = state.comments[action.payload.slug].filter(
+        for (const slug in state.comments) {
+          state.comments[slug] = state.comments[slug].filter(
             c => c.id !== action.payload.commentId
           );
         }

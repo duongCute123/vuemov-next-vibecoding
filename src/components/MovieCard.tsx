@@ -47,8 +47,6 @@ export default function MovieCard({
     e.preventDefault();
     e.stopPropagation();
     
-    console.log('User:', user, 'Slug:', slug, 'IsFavorite:', isFavorite);
-    
     if (!user) {
       window.location.href = '/auth?redirect=' + encodeURIComponent(window.location.pathname);
       return;
@@ -57,10 +55,8 @@ export default function MovieCard({
     try {
       if (isFavorite) {
         await dispatch(removeFavorite(slug)).unwrap();
-        console.log('Removed from favorites');
       } else {
         await dispatch(addFavorite(slug)).unwrap();
-        console.log('Added to favorites');
       }
     } catch (err) {
       console.error('Error toggling favorite:', err);
