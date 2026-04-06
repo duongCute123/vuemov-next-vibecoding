@@ -22,6 +22,9 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://nhungmov.vercel.app"),
+  verification: {
+    google: "jZOo6rJMiX5v8i1A7IkmqPMEPHaZA6bpVN74ASCsPBY",
+  },
   title: {
     default: "NhungMov - Xem phim online miễn phí",
     template: "%s | NhungMov",
