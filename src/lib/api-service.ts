@@ -1,79 +1,81 @@
 'use client';
 
-import { 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword,
-  signOut as firebaseSignOut,
-  User
-} from 'firebase/auth';
-import { 
-  doc, getDoc, setDoc, updateDoc, deleteDoc, 
-  collection, query, where, getDocs, addDoc, serverTimestamp 
-} from 'firebase/firestore';
-import { auth, db } from './firebase';
-
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://vuemov-backend.onrender.com';
 const TOKEN_KEY = 'nhungmov_token';
 const USER_KEY = 'nhungmov_user';
-
-const isFirebaseConfigured = () => {
-  return process.env.NEXT_PUBLIC_FIREBASE_API_KEY && 
-         process.env.NEXT_PUBLIC_FIREBASE_API_KEY !== 'dummy';
-};
 
 export interface LoginResult {
   success: boolean;
   message?: string;
 }
 
-export async function login(email: string, password: string): Promise<LoginResult> {
-  if (!isFirebaseConfigured()) {
-    return { success: false, message: 'Firebase not configured' };
+export interface User {
+  id: string;
+  email: string;
+  username: string;
+  avatar?: string;
+}
+
+async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const token = getToken();
+  const response = await fetch(`${BACKEND_URL}${endpoint}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...options.headers,
+    },
+  });
+  
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Request failed' }));
+    throw new Error(error.message || 'Request failed');
   }
+  
+  return response.json();
+}
+
+export async function login(email: string, password: string): Promise<LoginResult> {
   try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    const token = await userCredential.user.getIdToken();
-    setToken(token);
-    const userData = {
-      id: userCredential.user.uid,
-      email: userCredential.user.email || email,
-      username: email.split('@')[0]
-    };
-    localStorage.setItem(USER_KEY, JSON.stringify(userData));
-    return { success: true };
+    const data = await fetchApi<{ success: boolean; token?: string; user?: User; message?: string }>('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+    
+    if (data.success && data.token) {
+      setToken(data.token);
+      if (data.user) {
+        localStorage.setItem(USER_KEY, JSON.stringify(data.user));
+      }
+      return { success: true };
+    }
+    return { success: false, message: data.message || 'Login failed' };
   } catch (error: any) {
     return { success: false, message: error.message || 'Login failed' };
   }
 }
 
 export async function register(email: string, username: string, password: string): Promise<LoginResult> {
-  if (!isFirebaseConfigured()) {
-    return { success: false, message: 'Firebase not configured' };
-  }
   try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    await setDoc(doc(db, 'users', userCredential.user.uid), {
-      email,
-      username,
-      createdAt: serverTimestamp()
+    const data = await fetchApi<{ success: boolean; token?: string; user?: User; message?: string }>('/api/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({ email, username, password }),
     });
-    const token = await userCredential.user.getIdToken();
-    setToken(token);
-    const userData = {
-      id: userCredential.user.uid,
-      email,
-      username
-    };
-    localStorage.setItem(USER_KEY, JSON.stringify(userData));
-    return { success: true };
+    
+    if (data.success && data.token) {
+      setToken(data.token);
+      if (data.user) {
+        localStorage.setItem(USER_KEY, JSON.stringify(data.user));
+      }
+      return { success: true };
+    }
+    return { success: false, message: data.message || 'Registration failed' };
   } catch (error: any) {
     return { success: false, message: error.message || 'Registration failed' };
   }
 }
 
 export function logout(): void {
-  if (isFirebaseConfigured()) {
-    firebaseSignOut(auth);
-  }
   removeToken();
   localStorage.removeItem(USER_KEY);
 }
@@ -93,7 +95,7 @@ export function removeToken(): void {
   localStorage.removeItem(TOKEN_KEY);
 }
 
-export function getCurrentUser(): { id: string; email: string; username: string } | null {
+export function getCurrentUser(): User | null {
   if (typeof window === 'undefined') return null;
   const userStr = localStorage.getItem(USER_KEY);
   if (!userStr) return null;
@@ -105,98 +107,62 @@ export function getCurrentUser(): { id: string; email: string; username: string 
 }
 
 export async function getFavorites(): Promise<string[]> {
-  const user = getCurrentUser();
-  if (!user || !isFirebaseConfigured()) return [];
   try {
-    const q = query(collection(db, 'favorites'), where('userId', '==', user.id));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => doc.data().slug);
+    const data = await fetchApi<{ success: boolean; favorites: string[] }>('/api/user/favorites');
+    return data.favorites || [];
   } catch {
     return [];
   }
 }
 
 export async function addFavorite(slug: string): Promise<void> {
-  const user = getCurrentUser();
-  if (!user || !isFirebaseConfigured()) return;
-  const q = query(collection(db, 'favorites'), where('userId', '==', user.id), where('slug', '==', slug));
-  const snapshot = await getDocs(q);
-  if (snapshot.empty) {
-    await addDoc(collection(db, 'favorites'), {
-      userId: user.id,
-      slug,
-      createdAt: serverTimestamp()
-    });
-  }
+  await fetchApi('/api/user/favorites', {
+    method: 'POST',
+    body: JSON.stringify({ slug }),
+  });
 }
 
 export async function removeFavorite(slug: string): Promise<void> {
-  const user = getCurrentUser();
-  if (!user || !isFirebaseConfigured()) return;
-  const q = query(collection(db, 'favorites'), where('userId', '==', user.id), where('slug', '==', slug));
-  const snapshot = await getDocs(q);
-  for (const docSnap of snapshot.docs) {
-    await deleteDoc(docSnap.ref);
-  }
+  await fetchApi(`/api/user/favorites/${slug}`, {
+    method: 'DELETE',
+  });
 }
 
 export async function checkFavorite(slug: string): Promise<boolean> {
-  const user = getCurrentUser();
-  if (!user || !isFirebaseConfigured()) return false;
-  const q = query(collection(db, 'favorites'), where('userId', '==', user.id), where('slug', '==', slug));
-  const snapshot = await getDocs(q);
-  return !snapshot.empty;
+  try {
+    const data = await fetchApi<{ success: boolean; isFavorite: boolean }>(`/api/user/favorites/${slug}`);
+    return data.isFavorite || false;
+  } catch {
+    return false;
+  }
 }
 
 export async function getHistory(): Promise<Array<{ slug: string; watchedAt: string }>> {
-  const user = getCurrentUser();
-  if (!user || !isFirebaseConfigured()) return [];
   try {
-    const q = query(collection(db, 'history'), where('userId', '==', user.id));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
-      slug: doc.data().slug,
-      watchedAt: doc.data().watchedAt?.toDate?.()?.toISOString() || new Date().toISOString()
-    })).sort((a, b) => new Date(b.watchedAt).getTime() - new Date(a.watchedAt).getTime());
+    const data = await fetchApi<{ success: boolean; history: Array<{ slug: string; watchedAt: string }> }>('/api/user/history');
+    return data.history || [];
   } catch {
     return [];
   }
 }
 
 export async function addHistory(slug: string): Promise<void> {
-  const user = getCurrentUser();
-  if (!user || !isFirebaseConfigured()) return;
-  const q = query(collection(db, 'history'), where('userId', '==', user.id), where('slug', '==', slug));
-  const snapshot = await getDocs(q);
-  if (!snapshot.empty) {
-    await updateDoc(snapshot.docs[0].ref, { watchedAt: serverTimestamp() });
-  } else {
-    await addDoc(collection(db, 'history'), {
-      userId: user.id,
-      slug,
-      watchedAt: serverTimestamp()
-    });
-  }
+  await fetchApi('/api/user/history', {
+    method: 'POST',
+    body: JSON.stringify({ slug }),
+  });
 }
 
 export async function removeHistory(slug: string): Promise<void> {
-  const user = getCurrentUser();
-  if (!user || !isFirebaseConfigured()) return;
-  const q = query(collection(db, 'history'), where('userId', '==', user.id), where('slug', '==', slug));
-  const snapshot = await getDocs(q);
-  for (const docSnap of snapshot.docs) {
-    await deleteDoc(docSnap.ref);
-  }
+  await fetchApi(`/api/user/history/${slug}`, {
+    method: 'DELETE',
+  });
 }
 
 export async function clearHistory(): Promise<void> {
-  const user = getCurrentUser();
-  if (!user || !isFirebaseConfigured()) return;
-  const q = query(collection(db, 'history'), where('userId', '==', user.id));
-  const snapshot = await getDocs(q);
-  for (const docSnap of snapshot.docs) {
-    await deleteDoc(docSnap.ref);
-  }
+  await fetchApi('/api/user/history', {
+    method: 'DELETE',
+  });
 }
 
 export async function getComments(slug: string): Promise<Array<{
@@ -207,21 +173,16 @@ export async function getComments(slug: string): Promise<Array<{
   rating: number;
   createdAt: string;
 }>> {
-  if (!isFirebaseConfigured()) return [];
   try {
-    const q = query(collection(db, 'comments'), where('slug', '==', slug));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        userId: data.userId || '',
-        username: data.username || '',
-        content: data.content || '',
-        rating: data.rating || 0,
-        createdAt: data.createdAt?.toDate?.()?.toISOString() || new Date().toISOString()
-      };
-    }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    const data = await fetchApi<{ success: boolean; comments: Array<{
+      id: string;
+      userId: string;
+      username: string;
+      content: string;
+      rating: number;
+      createdAt: string;
+    }> }>(`/api/comments/${slug}`);
+    return data.comments || [];
   } catch {
     return [];
   }
@@ -235,31 +196,26 @@ export async function addComment(slug: string, content: string, rating: number =
   rating: number;
   createdAt: string;
 } | null> {
-  const user = getCurrentUser();
-  if (!user || !isFirebaseConfigured()) return null;
   try {
-    const docRef = await addDoc(collection(db, 'comments'), {
-      slug,
-      userId: user.id,
-      username: user.username,
-      content,
-      rating,
-      createdAt: serverTimestamp()
+    const data = await fetchApi<{ success: boolean; comment: {
+      id: string;
+      userId: string;
+      username: string;
+      content: string;
+      rating: number;
+      createdAt: string;
+    } }>(`/api/comments/${slug}`, {
+      method: 'POST',
+      body: JSON.stringify({ content, rating }),
     });
-    return {
-      id: docRef.id,
-      userId: user.id,
-      username: user.username,
-      content,
-      rating,
-      createdAt: new Date().toISOString()
-    };
+    return data.comment || null;
   } catch {
     return null;
   }
 }
 
-export async function deleteComment(commentId: string, _slug: string): Promise<void> {
-  if (!isFirebaseConfigured()) return;
-  await deleteDoc(doc(db, 'comments', commentId));
+export async function deleteComment(commentId: string, slug: string): Promise<void> {
+  await fetchApi(`/api/comments/${slug}/${commentId}`, {
+    method: 'DELETE',
+  });
 }
