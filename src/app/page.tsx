@@ -5,6 +5,27 @@ import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { getNewUpdatedMovies, getTheLoaiList, resolveImageUrl } from "@/lib/phimapi";
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "NhungMov",
+  "url": "https://nhungmov.vercel.app",
+  "description": "Xem phim online miễn phí, phim mới nhất, phim chất lượng cao, vietsub",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://nhungmov.vercel.app/search?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "NhungMov",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://nhungmov.vercel.app/logo.svg"
+    }
+  }
+};
+
 export default async function Home() {
   const [newMovies, categories] = await Promise.all([
     getNewUpdatedMovies({ limit: 30 }),
@@ -221,6 +242,10 @@ export default async function Home() {
       </main>
 
       <SiteFooter />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
     </div>
   );
 }
