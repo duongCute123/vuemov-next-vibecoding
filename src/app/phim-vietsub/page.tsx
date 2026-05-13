@@ -1,8 +1,17 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import MovieCard from "@/components/MovieCard";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { getNewUpdatedMovies, getTheLoaiList, resolveImageUrl } from "@/lib/phimapi";
+
+export const metadata: Metadata = {
+  title: "Phim vietsub - NhungMov",
+  description: "Xem phim vietsub online miễn phí, phim có thuyết minh tiếng Việt chất lượng cao. Kho phim vietsub đa dạng thể loại.",
+  alternates: {
+    canonical: "https://nhungmov.vercel.app/phim-vietsub",
+  },
+};
 
 type PageProps = { searchParams: Promise<{ page?: string }> };
 
@@ -20,8 +29,21 @@ export default async function Page({ searchParams }: PageProps) {
   const prevPage = Math.max(1, page - 1);
   const nextPage = page + 1;
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Trang chủ", "item": "https://nhungmov.vercel.app" },
+      { "@type": "ListItem", "position": 2, "name": "Phim vietsub", "item": "https://nhungmov.vercel.app/phim-vietsub" },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <SiteHeader 
         categories={topCategories.map((category) => ({ name: category.name, slug: category.slug }))} 
         searchPlaceholder="Tìm kiếm phim..." 

@@ -1,8 +1,17 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import MovieCard from "@/components/MovieCard";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { getMoviesByCategory, getTheLoaiList, resolveImageUrl } from "@/lib/phimapi";
+
+export const metadata: Metadata = {
+  title: "TV Shows - NhungMov",
+  description: "Xem TV shows online miễn phí. Các chương trình truyền hình thực tế, talkshow, gameshow hấp dẫn vietsub.",
+  alternates: {
+    canonical: "https://nhungmov.vercel.app/tv-shows",
+  },
+};
 
 type PageProps = { searchParams: Promise<{ page?: string }> };
 

@@ -1,8 +1,17 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import MovieCard from "@/components/MovieCard";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { getNewUpdatedMovies, getTheLoaiList, resolveImageUrl } from "@/lib/phimapi";
+
+export const metadata: Metadata = {
+  title: "Phim lồng tiếng - NhungMov",
+  description: "Xem phim lồng tiếng online miễn phí. Phim hoạt hình, phim bộ, phim lẻ lồng tiếng Việt chất lượng cao.",
+  alternates: {
+    canonical: "https://nhungmov.vercel.app/phim-long-tieng",
+  },
+};
 
 type PageProps = { searchParams: Promise<{ page?: string }> };
 

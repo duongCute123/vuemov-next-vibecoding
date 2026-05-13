@@ -1,6 +1,21 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import MovieCard from "@/components/MovieCard";
 import { getMoviesByCategory, getTheLoaiList, resolveImageUrl } from "@/lib/phimapi";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const categories = await getTheLoaiList();
+  const current = categories.find((c) => c.slug === slug);
+  const name = current?.name || slug;
+  return {
+    title: `${name} - NhungMov`,
+    description: `Xem phim thể loại ${name} online miễn phí, tuyển tập phim ${name} mới nhất vietsub chất lượng cao.`,
+    alternates: {
+      canonical: `https://nhungmov.vercel.app/the-loai/${slug}`,
+    },
+  };
+}
 
 export default async function CategoryPage({
   params,

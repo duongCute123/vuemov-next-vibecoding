@@ -1,8 +1,17 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import MovieCard from "@/components/MovieCard";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { getNewUpdatedMovies, getTheLoaiList, resolveImageUrl } from "@/lib/phimapi";
+
+export const metadata: Metadata = {
+  title: "Hoạt hình - NhungMov",
+  description: "Xem phim hoạt hình online miễn phí. Anime, hoạt hình Disney, Pixar và phim hoạt hình Trung Quốc, Nhật Bản vietsub.",
+  alternates: {
+    canonical: "https://nhungmov.vercel.app/hoat-hinh",
+  },
+};
 
 export default async function HoatHinhPage({
   searchParams,

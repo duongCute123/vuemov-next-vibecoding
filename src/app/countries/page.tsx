@@ -1,5 +1,14 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { getQuocGiaList } from "@/lib/phimapi";
+
+export const metadata: Metadata = {
+  title: "Quốc gia - NhungMov",
+  description: "Xem phim theo quốc gia: Hàn Quốc, Trung Quốc, Nhật Bản, Mỹ, Thái Lan, Ấn Độ và nhiều hơn nữa.",
+  alternates: {
+    canonical: "https://nhungmov.vercel.app/countries",
+  },
+};
 
 export default async function CountriesPage() {
   const countries = await getQuocGiaList();

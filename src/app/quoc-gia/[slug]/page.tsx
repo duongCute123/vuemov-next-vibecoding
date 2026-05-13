@@ -1,6 +1,21 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import MovieCard from "@/components/MovieCard";
 import { getMoviesByCountry, getQuocGiaList, resolveImageUrl } from "@/lib/phimapi";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const countries = await getQuocGiaList();
+  const current = countries.find((c) => c.slug === slug);
+  const name = current?.name || slug;
+  return {
+    title: `Phim ${name} - NhungMov`,
+    description: `Xem phim ${name} online miễn phí, phim ${name} hay nhất vietsub chất lượng cao cập nhật liên tục.`,
+    alternates: {
+      canonical: `https://nhungmov.vercel.app/quoc-gia/${slug}`,
+    },
+  };
+}
 
 export default async function CountryPage({
   params,
