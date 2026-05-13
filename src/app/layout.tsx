@@ -91,6 +91,12 @@ export default function RootLayout({
       lang="vi"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <link rel="preconnect" href="https://phimapi.com" />
+        <link rel="preconnect" href="https://phimimg.com" />
+        <link rel="dns-prefetch" href="https://phimapi.com" />
+        <link rel="dns-prefetch" href="https://phimimg.com" />
+      </head>
       <body className="min-h-full flex flex-col">
         <ReduxProvider>
           <AuthProvider>{children}</AuthProvider>

@@ -66,7 +66,7 @@ export default async function CategoryPage({
         {res.items.length === 0 ? (
           <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-8 text-zinc-400">Không tìm thấy phim cho thể loại này.</div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+          <div className="movie-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {res.items.map((m) => (
               <MovieCard
                 key={m.slug}

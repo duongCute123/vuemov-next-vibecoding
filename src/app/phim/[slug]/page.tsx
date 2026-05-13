@@ -1,10 +1,14 @@
+import dynamic from "next/dynamic";
 import EpisodePlayer from "@/components/EpisodePlayer";
-import CommentsSection from "@/components/CommentsSection";
 import AddHistoryTracker from "@/components/AddHistoryTracker";
 import { getMovieDetail, resolveImageUrl, type MovieDetail } from "@/lib/phimapi";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+
+const CommentsSection = dynamic(() => import("@/components/CommentsSection"), {
+  loading: () => <div className="rounded-[28px] border border-white/10 bg-zinc-900/50 p-6 text-center text-sm text-zinc-400 animate-pulse">Đang tải bình luận...</div>,
+});
 
 function stripHtml(value?: string) {
   if (!value) return "";
@@ -116,7 +120,7 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ sl
         <div className="absolute inset-0">
           {backdropUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={backdropUrl} alt={title} className="h-full w-full object-cover opacity-25" />
+            <img src={backdropUrl} alt={title} fetchPriority="high" className="h-full w-full object-cover opacity-25" />
           ) : (
             <div className="h-full w-full bg-gradient-to-br from-cyan-500/10 via-zinc-950 to-fuchsia-500/10" />
           )}
@@ -142,7 +146,7 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ sl
               <div className="overflow-hidden rounded-[28px] border border-white/10 bg-zinc-900/70 shadow-2xl shadow-black/40 backdrop-blur">
                 {posterUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={posterUrl} alt={title} className="aspect-[2/3] w-full object-cover" />
+                  <img src={posterUrl} alt={title} loading="lazy" decoding="async" className="aspect-[2/3] w-full object-cover" />
                 ) : (
                   <div className="flex aspect-[2/3] w-full items-center justify-center bg-zinc-900 text-sm text-zinc-500">
                     Chưa có poster

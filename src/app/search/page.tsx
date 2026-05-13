@@ -65,7 +65,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="movie-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
             {items.map((m) => (
               <MovieCard
                 key={m.slug}

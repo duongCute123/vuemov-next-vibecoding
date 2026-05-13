@@ -66,7 +66,7 @@ export default async function CountryPage({
             Không tìm thấy phim cho quốc gia này.
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          <div className="movie-grid grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {res.items.map((m) => (
               <MovieCard
                 key={m.slug}

@@ -23,10 +23,10 @@ interface ApiResponse<T> {
   data?: T;
 }
 
-async function phimapiFetchJson<T>(url: string): Promise<T> {
+async function phimapiFetchJson<T>(url: string, revalidate?: number): Promise<T> {
   const resp = await fetch(url, {
     headers: { "User-Agent": "vuemov-next/1.0" },
-    cache: "no-store",
+    next: { revalidate: revalidate ?? 300 },
   });
   if (!resp.ok) {
     const text = await resp.text().catch(() => "");
@@ -112,7 +112,7 @@ export async function getNewUpdatedMovies(opts?: {
 
 export async function getTheLoaiList(): Promise<TheLoaiItem[]> {
   const url = `${PHIMAPI_BASE}/the-loai`;
-  return phimapiFetchJson<TheLoaiItem[]>(url);
+  return phimapiFetchJson<TheLoaiItem[]>(url, 3600);
 }
 
 export async function getMoviesByCategory(slug: string, opts?: { page?: number; limit?: number; sort_lang?: string }): Promise<MovieListResult> {
@@ -140,7 +140,7 @@ export async function searchMovies(keyword: string, opts?: { page?: number; limi
 
 export async function getMovieDetail(slug: string): Promise<{ movie: MovieDetail | null; episodes: MovieEpisode[] }> {
   const url = `${PHIMAPI_BASE}/phim/${encodeURIComponent(slug)}`;
-  const json = await phimapiFetchJson<{ movie?: MovieDetail | null; episodes?: MovieEpisode[] }>(url);
+  const json = await phimapiFetchJson<{ movie?: MovieDetail | null; episodes?: MovieEpisode[] }>(url, 600);
   return { movie: json.movie ?? null, episodes: json.episodes ?? [] };
 }
 
@@ -152,7 +152,7 @@ export interface QuocGiaItem {
 
 export async function getQuocGiaList(): Promise<QuocGiaItem[]> {
   const url = `${PHIMAPI_BASE}/quoc-gia`;
-  return phimapiFetchJson<QuocGiaItem[]>(url);
+  return phimapiFetchJson<QuocGiaItem[]>(url, 3600);
 }
 
 export async function getMoviesByCountry(slug: string, opts?: { page?: number; limit?: number; sort_lang?: string }): Promise<MovieListResult> {

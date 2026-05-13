@@ -91,6 +91,8 @@ export default async function PhimHomePage() {
                           <img
                             src={resolveImageUrl(movie.thumb_url) ?? resolveImageUrl(movie.poster_url) ?? ""}
                             alt={movie.name}
+                            loading="lazy"
+                            decoding="async"
                             className="h-full w-full object-cover"
                           />
                         ) : null}
@@ -132,7 +134,7 @@ export default async function PhimHomePage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6">
+          <div className="movie-grid grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6">
             {gridMovies.map((movie) => (
               <MovieCard
                 key={movie.slug}

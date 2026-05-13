@@ -1,36 +1,112 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NhungMov - Xem phim online miễn phí
 
-## Getting Started
+Website xem phim online miễn phí với giao diện streaming hiện đại, hỗ trợ xem phim bộ, phim lẻ, phim chiếu rạp vietsub chất lượng cao.
 
-First, run the development server:
+**URL:** [https://nhungmov.vercel.app](https://nhungmov.vercel.app)
+
+## Công nghệ
+
+- **Framework:** Next.js 16 (App Router)
+- **Ngôn ngữ:** TypeScript
+- **Styling:** Tailwind CSS v4
+- **State:** Redux Toolkit
+- **Auth:** Firebase Authentication
+- **Animation:** Framer Motion
+- **Carousel:** Swiper
+- **API:** phimapi.com
+
+## Tính năng
+
+- Xem phim online (phim bộ, phim lẻ, phim chiếu rạp, hoạt hình, TV shows)
+- Lọc phim theo thể loại, quốc gia, năm
+- Tìm kiếm phim nâng cao
+- Đăng nhập/đăng ký với Firebase
+- Bình luận dưới phim
+- Lịch sử xem phim
+- Yêu thích phim
+- Responsive, mobile-first
+- SEO tối ưu (Google Search Console, sitemap, JSON-LD, robots.txt)
+- Hỗ trợ nhiều server phát
+
+## Cài đặt
+
+```bash
+npm install
+```
+
+## Chạy development
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Mở [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm start
+```
 
-## Learn More
+## Biến môi trường
 
-To learn more about Next.js, take a look at the following resources:
+Tạo file `.env.local`:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```env
+NEXT_PUBLIC_PHIMAPI_BASE=https://phimapi.com
+NEXT_PUBLIC_PHIMIMG_CDN=https://phimimg.com
+NEXT_PUBLIC_FIREBASE_API_KEY=
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+NEXT_PUBLIC_FIREBASE_APP_ID=
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## API Backend
 
-## Deploy on Vercel
+Backend Java Spring Boot: [https://github.com/duongCute123/apivuemov-next](https://github.com/duongCute123/apivuemov-next)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+CORS đã cấu hình cho phép `https://nhungmov.vercel.app` và `http://localhost:3000`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Cấu trúc thư mục
+
+```
+src/
+├── app/
+│   ├── phim/[slug]/        # Trang chi tiết phim
+│   ├── the-loai/[slug]/    # Lọc theo thể loại
+│   ├── quoc-gia/[slug]/    # Lọc theo quốc gia
+│   ├── phim-bo/            # Phim bộ
+│   ├── phim-le/            # Phim lẻ
+│   ├── phim-moi/           # Phim mới
+│   ├── phim-chieu-rap/     # Phim chiếu rạp
+│   ├── hoat-hinh/          # Hoạt hình
+│   ├── tv-shows/           # TV Shows
+│   ├── search/             # Tìm kiếm
+│   ├── auth/               # Đăng nhập
+│   ├── profile/            # Hồ sơ
+│   ├── favourite/          # Yêu thích
+│   ├── countries/          # Danh sách quốc gia
+│   ├── sitemap.ts          # Sitemap động
+│   └── layout.tsx          # Layout chính + SEO metadata
+├── components/
+│   ├── MovieCard.tsx       # Card phim
+│   ├── SiteHeader.tsx      # Header navigation
+│   ├── SiteFooter.tsx      # Footer
+│   └── ...
+└── lib/
+    ├── phimapi.ts          # API client
+    ├── auth-context.tsx     # Auth context
+    └── store/              # Redux store
+```
+
+## SEO
+
+- ✅ robots.txt cho phép crawl toàn bộ
+- ✅ Sitemap động (static pages + categories + countries + movies)
+- ✅ Metadata + canonical URL trên mọi trang
+- ✅ JSON-LD structured data (WebSite, Movie, BreadcrumbList)
+- ✅ Google Search Console verified
+- ✅ Security headers (X-Robots-Tag, X-Content-Type-Options, etc.)
