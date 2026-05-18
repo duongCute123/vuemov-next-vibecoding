@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { getComments, addComment as apiAddComment, deleteComment as apiDeleteComment } from '@/lib/api-service';
@@ -135,9 +136,9 @@ export default function CommentsSection({ slug, movieTitle }: CommentsSectionPro
           ) : (
             <div className="mb-6 pb-6 border-b border-white/10 rounded-xl bg-zinc-800/30 p-4 text-center">
               <p className="text-zinc-400">Vui lòng đăng nhập để bình luận và đánh giá</p>
-              <a href="/auth" className="inline-block mt-2 text-cyan-400 hover:text-cyan-300 font-medium">
+              <Link href="/auth" className="inline-block mt-2 text-cyan-400 hover:text-cyan-300 font-medium">
                 Đăng nhập ngay
-              </a>
+              </Link>
             </div>
           )}
 

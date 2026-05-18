@@ -2,10 +2,13 @@
 
 import Link from 'next/link';
 import { useState, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { motion } from 'framer-motion';
 
 export default function AuthPage() {
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirect') || '/';
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -28,7 +31,7 @@ export default function AuthPage() {
     }
 
     if (result.success) {
-      window.location.href = '/';
+      window.location.href = redirectTo;
     } else {
       setError(result.message || 'Có lỗi xảy ra');
     }

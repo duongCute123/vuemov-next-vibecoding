@@ -1,7 +1,8 @@
 'use client';
-import { createContext, useContext, ReactNode } from 'react';
+import { createContext, useContext, ReactNode, useEffect, useState } from 'react';
 import { useAppSelector, useAppDispatch } from './store/hooks';
-import { login as loginAction, register as registerAction, logout as logoutAction, clearError } from './store/authSlice';
+import { login as loginAction, register as registerAction, logout as logoutAction, clearError, setUser } from './store/authSlice';
+import { setToken, setCurrentUser } from './api-service';
 
 interface AuthContextType {
   user: { id: string; email: string; username: string; avatar?: string } | null;
@@ -20,21 +21,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const user = useAppSelector((state) => state.auth.user);
   const loading = useAppSelector((state) => state.auth.loading);
   const error = useAppSelector((state) => state.auth.error);
+  const [initialLoading, setInitialLoading] = useState(true);
+
+  useEffect(() => {
+    const restoreSession = async () => {
+      try {
+        const res = await fetch('/api/auth/me');
+        const data = await res.json();
+        if (data.user && data.token) {
+          setToken(data.token);
+          setCurrentUser(data.user);
+          dispatch(setUser(data.user));
+        }
+      } catch (err) {
+        console.error('Session restore error:', err);
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+    restoreSession();
+  }, [dispatch]);
 
   const login = async (email: string, password: string) => {
-    const result = await dispatch(loginAction({ email, password })).unwrap();
-    if (result) {
-      return { success: true };
+    try {
+      const result = await dispatch(loginAction({ email, password })).unwrap();
+      if (result) {
+        return { success: true };
+      }
+      return { success: false, message: error || 'Login failed' };
+    } catch (err: any) {
+      return { success: false, message: err || 'Login failed' };
     }
-    return { success: false, message: error || 'Login failed' };
   };
 
   const register = async (email: string, username: string, password: string) => {
-    const result = await dispatch(registerAction({ email, username, password })).unwrap();
-    if (result) {
-      return { success: true };
+    try {
+      const result = await dispatch(registerAction({ email, username, password })).unwrap();
+      if (result) {
+        return { success: true };
+      }
+      return { success: false, message: error || 'Registration failed' };
+    } catch (err: any) {
+      return { success: false, message: err || 'Registration failed' };
     }
-    return { success: false, message: error || 'Registration failed' };
   };
 
   const logout = () => {
@@ -46,7 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, error, login, register, logout, clearError: handleClearError }}>
+    <AuthContext.Provider value={{ user, loading: initialLoading || loading, error, login, register, logout, clearError: handleClearError }}>
       {children}
     </AuthContext.Provider>
   );

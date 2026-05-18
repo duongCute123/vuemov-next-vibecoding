@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 
@@ -43,6 +43,17 @@ export default function SiteHeader({
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const q = formData.get("q")?.toString().trim();
+    if (q) {
+      router.push(`/search?q=${encodeURIComponent(q)}`);
+      setMobileMenuOpen(false);
+    }
+  };
 
   useEffect(() => {
     function handleScroll() {
@@ -73,19 +84,19 @@ export default function SiteHeader({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  const handleLogout = async () => {
-    await logout();
+  const handleLogout = () => {
+    logout();
     window.location.href = '/';
   };
 
   return (
     <>
-      <a
+      <Link
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-lg focus:bg-gradient-to-r focus:from-purple-600 focus:to-pink-600 focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white"
       >
         Chuyển đến nội dung chính
-      </a>
+      </Link>
       <header 
         className={`sticky top-0 z-40 transition-all duration-500 ${
           scrolled 
@@ -113,7 +124,7 @@ export default function SiteHeader({
             </div>
 
             <div className="hidden md:flex flex-1 max-w-md mx-4">
-              <form action="/search" method="get" className="w-full" role="search">
+              <form onSubmit={handleSearch} className="w-full" role="search">
                 <div className="relative group">
                   <input 
                     type="text"
@@ -219,7 +230,7 @@ export default function SiteHeader({
 
               <button
                 type="button"
-                className="md:hidden flex items-center justify-center w-10 h-10 rounded-xl hover:bg-zinc-800/50 transition-colors duration-300"
+                className="lg:hidden flex items-center justify-center w-10 h-10 rounded-xl hover:bg-zinc-800/50 transition-colors duration-300"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 aria-expanded={mobileMenuOpen}
                 aria-controls="mobile-menu"
@@ -267,7 +278,7 @@ export default function SiteHeader({
               className={`lg:hidden ${mobileMenuOpen ? 'block' : 'hidden'} py-4`}
               aria-label="Menu chính"
             >
-              <form action="/search" method="get" className="mb-4 px-2" role="search">
+              <form onSubmit={handleSearch} className="mb-4 px-2" role="search">
                 <div className="relative">
                   <input 
                     type="text"

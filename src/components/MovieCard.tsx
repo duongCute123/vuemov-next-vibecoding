@@ -16,6 +16,7 @@ interface MovieCardProps {
   year?: number | string | null;
   duration?: string | null;
   origin?: string | null;
+  slideshowImages?: string[];
 }
 
 export default function MovieCard({
@@ -28,11 +29,24 @@ export default function MovieCard({
   year,
   duration,
   origin,
+  slideshowImages,
 }: MovieCardProps) {
   const [imgError, setImgError] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [slideIndex, setSlideIndex] = useState(0);
   const { user } = useAuth();
+  const slideshowSrcs = slideshowImages?.filter(Boolean) ?? [];
+  const isSlideshow = slideshowSrcs.length >= 2;
+
+  useEffect(() => {
+    if (!isSlideshow || isHovered) return;
+    const timer = setInterval(() => {
+      setSlideIndex((i) => (i + 1) % slideshowSrcs.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [isSlideshow, isHovered, slideshowSrcs.length]);
+
   const dispatch = useAppDispatch();
   const favorites = useAppSelector((state) => state.movies.favorites);
   const isFavorite = favorites.includes(slug);
@@ -75,7 +89,28 @@ export default function MovieCard({
         aria-label={`Xem phim ${title}${subTitle ? ` - ${subTitle}` : ''}`}
       >
         <div className="relative aspect-[2/3] bg-gradient-to-br from-zinc-700 to-zinc-800 overflow-hidden">
-          {posterUrl && !imgError ? (
+          {isSlideshow ? (
+            <div className="absolute inset-0 overflow-hidden">
+              {slideshowSrcs.map((src, i) => (
+                <img
+                  key={src}
+                  src={src}
+                  alt={`${title} - hình ${i + 1}`}
+                  loading={i === 0 ? "lazy" : undefined}
+                  decoding="async"
+                  className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 ${i === slideIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-105'}`}
+                />
+              ))}
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+                {slideshowSrcs.map((_, i) => (
+                  <span
+                    key={i}
+                    className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${i === slideIndex ? 'bg-white w-3' : 'bg-white/40'}`}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : posterUrl && !imgError ? (
             <>
               {isLoading && (
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-500/20 animate-pulse" />
@@ -144,11 +179,11 @@ export default function MovieCard({
 
           {isHovered && (
             <div className="absolute inset-0 z-20 flex items-center justify-center">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col items-center gap-3 w-full px-4">
                 <button
                   onClick={toggleFavorite}
                   disabled={!user}
-                  className={`px-3 py-2 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all duration-300 ${
+                  className={`w-full px-3 py-2.5 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-all duration-300 ${
                     !user ? 'opacity-50 cursor-not-allowed' : ''
                   } ${
                     isFavorite 
@@ -161,15 +196,18 @@ export default function MovieCard({
                   </svg>
                   {isFavorite ? 'Đã thích' : 'Yêu thích'}
                 </button>
-                <Link
-                  href={`/phim/${encodeURIComponent(slug)}`}
-                  className="px-5 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white text-sm font-bold rounded-lg hover:from-cyan-400 hover:to-blue-400 transition-all duration-300 shadow-lg shadow-cyan-500/30 flex items-center gap-2"
+                <span
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.open(`/phim/${encodeURIComponent(slug)}`, '_self'); }}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); window.open(`/phim/${encodeURIComponent(slug)}`, '_self'); } }}
+                  role="link"
+                  tabIndex={0}
+                  className="w-full px-3 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-500 text-white text-xs font-bold rounded-lg hover:from-cyan-400 hover:to-blue-400 transition-all duration-300 shadow-lg shadow-cyan-500/30 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M8 5v14l11-7z" />
                   </svg>
                   Xem ngay
-                </Link>
+                </span>
               </div>
             </div>
           )}

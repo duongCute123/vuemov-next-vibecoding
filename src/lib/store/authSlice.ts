@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { login as loginApi, register as registerApi, getToken, removeToken, getCurrentUser } from '../api-service';
+import { login as loginApi, register as registerApi, getToken, getCurrentUser, logout as apiLogout } from '../api-service';
 
 interface User {
   id: string;
@@ -15,12 +15,9 @@ interface AuthState {
   error: string | null;
 }
 
-const storedUser = getCurrentUser();
-const storedToken = getToken();
-
 const initialState: AuthState = {
-  user: storedUser,
-  token: storedToken,
+  user: null,
+  token: null,
   loading: false,
   error: null,
 };
@@ -63,7 +60,7 @@ const authSlice = createSlice({
       state.user = null;
       state.token = null;
       state.error = null;
-      removeToken();
+      apiLogout();
     },
     clearError: (state) => {
       state.error = null;

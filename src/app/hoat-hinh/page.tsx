@@ -51,13 +51,14 @@ export default async function HoatHinhPage({
             <Link href="/" className="text-purple-400 hover:text-purple-300">Quay về trang chủ</Link>
           </div>
         ) : (
-          <div className="movie-grid grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-y-6">
+          <div className="movie-grid grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-12 gap-y-6">
             {animeMovies.items.map((movie) => (
               <MovieCard
                 key={movie.slug}
                 slug={movie.slug}
                 title={movie.name}
                 posterUrl={resolveImageUrl(movie.poster_url) ?? resolveImageUrl(movie.thumb_url)}
+                slideshowImages={[resolveImageUrl(movie.poster_url), resolveImageUrl(movie.thumb_url)].filter(Boolean) as string[]}
                 subTitle={movie.lang ?? movie.episode_current ?? movie.quality ?? ''}
                 quality={movie.quality ?? null}
                 episode={movie.episode_current ?? null}

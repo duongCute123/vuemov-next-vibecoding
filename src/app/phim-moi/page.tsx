@@ -24,7 +24,7 @@ export default async function PhimMoiPage({
 
   const [categories, movies] = await Promise.all([
     getTheLoaiList(),
-    getNewUpdatedMovies({ page, limit: 24, type_list: "phim-moi" }),
+    getNewUpdatedMovies({ page, limit: 24 }),
   ]);
 
   const topCategories = categories.slice(0, 12);
@@ -66,7 +66,7 @@ export default async function PhimMoiPage({
             <Link href="/" className="text-purple-400 hover:text-purple-300">Quay về trang chủ</Link>
           </div>
         ) : (
-          <div className="movie-grid grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-y-6">
+          <div className="movie-grid grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-12 gap-y-6">
             {movies.items.map((movie) => (
               <MovieCard
                 key={movie.slug}

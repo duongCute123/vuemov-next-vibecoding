@@ -5,8 +5,6 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import MovieCard from '@/components/MovieCard';
 import { getTheLoaiList, getQuocGiaList, resolveImageUrl, type MovieListItem, type TheLoaiItem, type QuocGiaItem, PHIMAPI_BASE } from '@/lib/phimapi';
-import { useAuth } from '@/lib/auth-context';
-
 interface FilterOptions {
   category: string;
   country: string;
@@ -18,7 +16,6 @@ interface FilterOptions {
 export default function AdvancedSearchPage() {
   const searchParams = useSearchParams();
   const q = searchParams.get('q') || '';
-  const { user } = useAuth();
 
   const [movies, setMovies] = useState<MovieListItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -273,7 +270,7 @@ export default function AdvancedSearchPage() {
         ) : (
           <>
             <p className="mb-4 text-sm text-zinc-400">Tìm thấy {movies.length} phim</p>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-12">
               {movies.map((movie) => (
                 <MovieCard
                   key={movie.slug}
