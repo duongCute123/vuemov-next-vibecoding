@@ -5,7 +5,7 @@ import { getMoviesByCategory, getTheLoaiList, resolveImageUrl } from "@/lib/phim
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const categories = await getTheLoaiList();
+  const categories = await getTheLoaiList().catch(() => []);
   const current = categories.find((c) => c.slug === slug);
   const name = current?.name || slug;
   return {
@@ -29,8 +29,8 @@ export default async function CategoryPage({
   const pageNum = Number.parseInt(rawPage || "1", 10);
 
   const [categories, res] = await Promise.all([
-    getTheLoaiList(),
-    getMoviesByCategory(slug, { page: Number.isFinite(pageNum) ? pageNum : 1 }),
+    getTheLoaiList().catch(() => []),
+    getMoviesByCategory(slug, { page: Number.isFinite(pageNum) ? pageNum : 1 }).catch(() => ({ items: [] })),
   ]);
 
   const current = categories.find((c) => c.slug === slug) || null;

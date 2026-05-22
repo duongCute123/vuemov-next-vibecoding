@@ -35,8 +35,9 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
     );
   }
 
-  const { items } = await searchMovies(q, { page: Number.isFinite(pageNum) ? pageNum : 1 });
-  const categories = await getTheLoaiList();
+  const result = await searchMovies(q, { page: Number.isFinite(pageNum) ? pageNum : 1 }).catch(() => ({ items: [] }));
+  const items = result.items;
+  const categories = await getTheLoaiList().catch(() => []);
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">

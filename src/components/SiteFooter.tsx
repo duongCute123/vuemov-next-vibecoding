@@ -38,7 +38,7 @@ export default function SiteFooter() {
       <div className="mx-auto max-w-7xl px-4 py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="text-xl font-bold text-white">ThunMov</Link>
+            <Link href="/" className="text-xl font-bold text-white">NhungMov</Link>
             <p className="mt-3 text-sm text-zinc-400">
               Xem phim online miễn phí chất lượng cao, cập nhật liên tục mỗi ngày.
             </p>
@@ -99,7 +99,7 @@ export default function SiteFooter() {
         <div className="mt-12 pt-6 border-t border-white/10">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm text-zinc-500">
-              © {new Date().getFullYear()} ThunMov. All rights reserved.
+              © {new Date().getFullYear()} NhungMov. All rights reserved.
             </p>
             <p className="text-sm text-zinc-500">
               Xem phim online miễn phí không quảng cáo.

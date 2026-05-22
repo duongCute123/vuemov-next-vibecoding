@@ -23,17 +23,27 @@ interface ApiResponse<T> {
   data?: T;
 }
 
+const FETCH_TIMEOUT = 8000;
+
 async function phimapiFetchJson<T>(url: string, revalidate?: number): Promise<T> {
-  const resp = await fetch(url, {
-    headers: { "User-Agent": "vuemov-next/1.0" },
-    next: { revalidate: revalidate ?? 300 },
-  });
-  if (!resp.ok) {
-    const text = await resp.text().catch(() => "");
-    throw new Error(`phimapiFetchJson failed: ${resp.status} ${resp.statusText} ${text.slice(0, 120)}`);
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
+
+  try {
+    const resp = await fetch(url, {
+      headers: { "User-Agent": "vuemov-next/1.0" },
+      next: { revalidate: revalidate ?? 300 },
+      signal: controller.signal,
+    });
+    if (!resp.ok) {
+      const text = await resp.text().catch(() => "");
+      throw new Error(`phimapiFetchJson failed: ${resp.status} ${resp.statusText} ${text.slice(0, 120)}`);
+    }
+    const json = await resp.json() as T;
+    return json;
+  } finally {
+    clearTimeout(timeoutId);
   }
-  const json = await resp.json() as T;
-  return json;
 }
 
 export interface MovieListItem {

@@ -26,6 +26,21 @@ const mainMenuItems = [
   { href: "/phim-chieu-rap", label: "Phim chiếu rạp", icon: "🎥" },
 ];
 
+const countryMenuItems = [
+  { href: "/quoc-gia/viet-nam", label: "Việt Nam", icon: "🇻🇳" },
+  { href: "/quoc-gia/trung-quoc", label: "Trung Quốc", icon: "🇨🇳" },
+  { href: "/quoc-gia/han-quoc", label: "Hàn Quốc", icon: "🇰🇷" },
+  { href: "/quoc-gia/nhat-ban", label: "Nhật Bản", icon: "🇯🇵" },
+  { href: "/quoc-gia/thai-lan", label: "Thái Lan", icon: "🇹🇭" },
+  { href: "/quoc-gia/au-my", label: "Âu Mỹ", icon: "🇺🇸" },
+  { href: "/quoc-gia/hong-kong", label: "Hồng Kông", icon: "🇭🇰" },
+  { href: "/quoc-gia/an-do", label: "Ấn Độ", icon: "🇮🇳" },
+  { href: "/quoc-gia/dai-loan", label: "Đài Loan", icon: "🇹🇼" },
+  { href: "/quoc-gia/anh", label: "Anh", icon: "🇬🇧" },
+  { href: "/quoc-gia/tay-ban-nha", label: "Tây Ban Nha", icon: "🇪🇸" },
+  { href: "/countries", label: "Xem thêm", icon: "🌍" },
+];
+
 function isActivePath(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
   return pathname === href || pathname.startsWith(`${href}/`);
@@ -230,7 +245,7 @@ export default function SiteHeader({
 
               <button
                 type="button"
-                className="lg:hidden flex items-center justify-center w-10 h-10 rounded-xl hover:bg-zinc-800/50 transition-colors duration-300"
+                className="sm:hidden flex items-center justify-center w-10 h-10 rounded-xl hover:bg-zinc-800/50 transition-colors duration-300"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 aria-expanded={mobileMenuOpen}
                 aria-controls="mobile-menu"
@@ -251,31 +266,61 @@ export default function SiteHeader({
         <div className="relative border-t border-zinc-800/50 bg-zinc-900/80 backdrop-blur-sm">
           <div className="absolute inset-0 bg-gradient-to-r from-purple-600/5 via-transparent to-pink-600/5 pointer-events-none" />
           <div className="relative mx-auto max-w-7xl px-4">
-            <div className="hidden lg:flex items-center gap-1 py-2.5 overflow-x-auto scrollbar-hide">
-              {mainMenuItems.map((item, index) => {
+            <div className="hidden sm:flex flex-wrap items-center gap-x-1 gap-y-1.5 py-2.5">
+              {mainMenuItems.map((item) => {
                 const active = isActivePath(pathname, item.href);
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`group relative whitespace-nowrap px-4 py-2 text-sm font-medium rounded-full transition-all duration-300 ${
+                    className={`whitespace-nowrap px-2.5 py-1.5 text-xs sm:text-sm font-medium rounded-full transition-all duration-300 ${
                       active
                         ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/30"
                         : "text-zinc-400 hover:text-white hover:bg-zinc-800/80"
                     }`}
                     aria-current={active ? "page" : undefined}
-                    style={{ animationDelay: `${index * 50}ms` }}
                   >
-                    <span className="mr-1.5">{item.icon}</span>
+                    <span className="hidden sm:inline mr-0.5">{item.icon}</span>
                     {item.label}
                   </Link>
                 );
               })}
+              <span className="h-5 w-px bg-zinc-700/50 mx-1 hidden sm:block" />
+              <div className="relative group">
+                <button className="flex items-center gap-1 whitespace-nowrap px-2.5 py-1.5 text-xs sm:text-sm font-medium rounded-full text-zinc-400 hover:text-white hover:bg-zinc-800/80 transition-all duration-300">
+                  <span>🌍</span>
+                  <span className="hidden sm:inline">Quốc gia</span>
+                  <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 transition-transform duration-200 group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-80 rounded-2xl border border-zinc-700/50 bg-zinc-900 backdrop-blur-2xl p-3 shadow-2xl shadow-cyan-500/10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 translate-y-2 group-hover:translate-y-0 scale-95 group-hover:scale-100 z-50 before:absolute before:-top-2 before:left-1/2 before:-translate-x-1/2 before:h-3 before:w-3 before:rotate-45 before:border-l before:border-t before:border-zinc-700/50 before:bg-zinc-900">
+                  <div className="grid grid-cols-4 gap-1">
+                    {countryMenuItems.map((item) => {
+                      const active = isActivePath(pathname, item.href);
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          className={`flex flex-col items-center gap-1 rounded-xl px-2 py-3 text-xs transition-colors ${
+                            active
+                              ? "text-cyan-300 bg-cyan-500/10"
+                              : "text-zinc-300 hover:text-white hover:bg-white/5"
+                          }`}
+                        >
+                          <span className="text-xl">{item.icon}</span>
+                          <span className="text-center leading-tight">{item.label}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
             </div>
 
             <nav
               id="mobile-menu"
-              className={`lg:hidden ${mobileMenuOpen ? 'block' : 'hidden'} py-4`}
+              className={`sm:hidden ${mobileMenuOpen ? 'block' : 'hidden'} py-4`}
               aria-label="Menu chính"
             >
               <form onSubmit={handleSearch} className="mb-4 px-2" role="search">
@@ -318,6 +363,23 @@ export default function SiteHeader({
                       className="px-4 py-2 text-sm text-zinc-300 bg-zinc-800/50 rounded-xl hover:bg-gradient-to-r hover:from-purple-500/20 hover:to-pink-500/20 hover:text-white transition-all duration-300"
                     >
                       {cat.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <h3 className="px-3 text-xs font-bold text-cyan-400 uppercase tracking-wider mb-2">Quốc Gia</h3>
+                <div className="flex flex-wrap gap-2">
+                  {countryMenuItems.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-zinc-300 bg-zinc-800/50 rounded-xl hover:bg-gradient-to-r hover:from-cyan-500/20 hover:to-blue-500/20 hover:text-white transition-all duration-300"
+                    >
+                      <span>{item.icon}</span>
+                      {item.label}
                     </Link>
                   ))}
                 </div>

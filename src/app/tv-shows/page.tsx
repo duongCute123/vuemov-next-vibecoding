@@ -21,8 +21,8 @@ export default async function TvShowsPage({ searchParams }: PageProps) {
   const page = Number.isFinite(pageNum) ? pageNum : 1;
 
   const [categories, movies] = await Promise.all([
-    getTheLoaiList(),
-    getMoviesByCategory("tv-shows", { page, limit: 24 }),
+    getTheLoaiList().catch(() => []),
+    getMoviesByCategory("tv-shows", { page, limit: 24 }).catch(() => ({ items: [] })),
   ]);
 
   const topCategories = categories.slice(0, 12);

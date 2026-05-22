@@ -23,8 +23,8 @@ export default async function PhimMoiPage({
   const page = Number.isFinite(pageNum) ? pageNum : 1;
 
   const [categories, movies] = await Promise.all([
-    getTheLoaiList(),
-    getNewUpdatedMovies({ page, limit: 24 }),
+    getTheLoaiList().catch(() => []),
+    getNewUpdatedMovies({ page, limit: 24 }).catch(() => ({ items: [] })),
   ]);
 
   const topCategories = categories.slice(0, 12);

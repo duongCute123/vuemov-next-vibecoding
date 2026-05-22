@@ -21,8 +21,8 @@ export default async function SapChieuPage({ searchParams }: PageProps) {
   const page = Number.isFinite(pageNum) ? pageNum : 1;
 
   const [categories, movies] = await Promise.all([
-    getTheLoaiList(),
-    searchMovies("sắp chiếu", { page }),
+    getTheLoaiList().catch(() => []),
+    searchMovies("sắp chiếu", { page }).catch(() => ({ items: [] })),
   ]);
 
   const topCategories = categories.slice(0, 12);

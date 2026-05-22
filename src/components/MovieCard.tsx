@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks";
-import { fetchFavorites, addFavorite, removeFavorite } from "@/lib/store/moviesSlice";
+import { addFavorite, removeFavorite } from "@/lib/store/moviesSlice";
 
 interface MovieCardProps {
   slug: string;
@@ -51,12 +52,6 @@ export default function MovieCard({
   const favorites = useAppSelector((state) => state.movies.favorites);
   const isFavorite = favorites.includes(slug);
 
-  useEffect(() => {
-    if (user) {
-      dispatch(fetchFavorites());
-    }
-  }, [user, dispatch]);
-
   const toggleFavorite = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -92,13 +87,13 @@ export default function MovieCard({
           {isSlideshow ? (
             <div className="absolute inset-0 overflow-hidden">
               {slideshowSrcs.map((src, i) => (
-                <img
+                <Image
                   key={src}
                   src={src}
                   alt={`${title} - hình ${i + 1}`}
-                  loading={i === 0 ? "lazy" : undefined}
-                  decoding="async"
-                  className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 ${i === slideIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-105'}`}
+                  fill
+                  sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1536px) 20vw, 8vw"
+                  className={`object-cover transition-all duration-1000 ${i === slideIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-105'}`}
                 />
               ))}
               <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
@@ -115,12 +110,12 @@ export default function MovieCard({
               {isLoading && (
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-500/20 animate-pulse" />
               )}
-              <img
+              <Image
                 src={posterUrl}
                 alt={title}
-                loading="lazy"
-                decoding="async"
-                className={`w-full h-full object-cover transition-all duration-700 ${isHovered ? 'scale-110' : 'scale-100'}`}
+                fill
+                sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1536px) 20vw, 8vw"
+                className={`object-cover transition-all duration-700 ${isHovered ? 'scale-110' : 'scale-100'}`}
                 onError={() => setImgError(true)}
                 onLoad={() => setIsLoading(false)}
               />

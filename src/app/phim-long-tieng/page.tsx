@@ -21,8 +21,8 @@ export default async function PhimLongTiengPage({ searchParams }: PageProps) {
   const page = Number.isFinite(pageNum) ? pageNum : 1;
 
   const [categories, movies] = await Promise.all([
-    getTheLoaiList(),
-    getNewUpdatedMovies({ page, limit: 24, type_list: "phim-long-tieng" }),
+    getTheLoaiList().catch(() => []),
+    getNewUpdatedMovies({ page, limit: 24, type_list: "phim-long-tieng" }).catch(() => ({ items: [] })),
   ]);
 
   const topCategories = categories.slice(0, 12);

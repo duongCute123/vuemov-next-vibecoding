@@ -22,8 +22,8 @@ export default async function HoatHinhPage({
   const pageNum = Number.parseInt(rawPage || "1", 10);
   const page = Number.isFinite(pageNum) ? pageNum : 1;
 
-  const categories = await getTheLoaiList();
-  const animeMovies = await getNewUpdatedMovies({ page, limit: 15, type_list: "hoat-hinh" });
+  const categories = await getTheLoaiList().catch(() => []);
+  const animeMovies = await getNewUpdatedMovies({ page, limit: 15, type_list: "hoat-hinh" }).catch(() => ({ items: [] }));
 
   const topCategories = categories.slice(0, 12);
   const prevPage = Math.max(1, page - 1);

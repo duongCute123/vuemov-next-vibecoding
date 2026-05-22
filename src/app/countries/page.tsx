@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function CountriesPage() {
-  const countries = await getQuocGiaList();
+  const countries = await getQuocGiaList().catch(() => []);
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">

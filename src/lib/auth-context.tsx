@@ -2,6 +2,7 @@
 import { createContext, useContext, ReactNode, useEffect, useState } from 'react';
 import { useAppSelector, useAppDispatch } from './store/hooks';
 import { login as loginAction, register as registerAction, logout as logoutAction, clearError, setUser } from './store/authSlice';
+import { fetchFavorites } from './store/moviesSlice';
 import { setToken, setCurrentUser } from './api-service';
 
 interface AuthContextType {
@@ -32,6 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setToken(data.token);
           setCurrentUser(data.user);
           dispatch(setUser(data.user));
+          dispatch(fetchFavorites());
         }
       } catch (err) {
         console.error('Session restore error:', err);

@@ -23,8 +23,8 @@ export default async function PhimLePage({
   const page = Number.isFinite(pageNum) ? pageNum : 1;
 
   const [categories, movies] = await Promise.all([
-    getTheLoaiList(),
-    getNewUpdatedMovies({ page, limit: 24, type_list: "phim-le" }),
+    getTheLoaiList().catch(() => []),
+    getNewUpdatedMovies({ page, limit: 24, type_list: "phim-le" }).catch(() => ({ items: [] })),
   ]);
 
   const topCategories = categories.slice(0, 12);

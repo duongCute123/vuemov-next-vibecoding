@@ -84,11 +84,11 @@ export default function HeroSlideshow({ movies }: { movies: HeroMovie[] }) {
             {heroImage ? (
               <Image
                 src={heroImage}
-                alt=""
+                alt={movie.name}
                 fill
                 className="object-cover"
                 priority={current === 0}
-                unoptimized
+                sizes="100vw"
               />
             ) : (
               <div className="w-full h-full bg-zinc-800" />

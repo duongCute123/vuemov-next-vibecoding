@@ -21,8 +21,8 @@ export default async function PhimChieuRapPage({ searchParams }: PageProps) {
   const page = Number.isFinite(pageNum) ? pageNum : 1;
 
   const [categories, movies] = await Promise.all([
-    getTheLoaiList(),
-    getMoviesByCategory("phim-dang-chieu", { page, limit: 24 }),
+    getTheLoaiList().catch(() => []),
+    getMoviesByCategory("phim-dang-chieu", { page, limit: 24 }).catch(() => ({ items: [] })),
   ]);
 
   const topCategories = categories.slice(0, 12);

@@ -1,4 +1,5 @@
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import EpisodePlayer from "@/components/EpisodePlayer";
 import AddHistoryTracker from "@/components/AddHistoryTracker";
 import { getMovieDetail, resolveImageUrl, type MovieDetail } from "@/lib/phimapi";
@@ -17,7 +18,7 @@ function stripHtml(value?: string) {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const { movie } = await getMovieDetail(slug);
+  const { movie } = await getMovieDetail(slug).catch(() => ({ movie: null, episodes: [] }));
   if (!movie) {
     return { title: "Không tìm thấy phim - NhungMov" };
   }
@@ -61,7 +62,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function MovieDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const { movie, episodes } = await getMovieDetail(slug);
+  const { movie, episodes } = await getMovieDetail(slug).catch(() => ({ movie: null, episodes: [] }));
 
   if (!movie) {
     notFound();
@@ -119,8 +120,7 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ sl
       <section className="relative isolate overflow-hidden border-b border-white/10">
         <div className="absolute inset-0">
           {backdropUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={backdropUrl} alt={title} fetchPriority="high" className="h-full w-full object-cover opacity-25" />
+            <Image src={backdropUrl} alt={title} fill className="object-cover opacity-25" priority sizes="100vw" />
           ) : (
             <div className="h-full w-full bg-gradient-to-br from-cyan-500/10 via-zinc-950 to-fuchsia-500/10" />
           )}
@@ -145,8 +145,7 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ sl
             <div className="mx-auto w-full max-w-[320px]">
               <div className="overflow-hidden rounded-[28px] border border-white/10 bg-zinc-900/70 shadow-2xl shadow-black/40 backdrop-blur">
                 {posterUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={posterUrl} alt={title} loading="lazy" decoding="async" className="aspect-[2/3] w-full object-cover" />
+                  <Image src={posterUrl} alt={title} width={320} height={480} className="aspect-[2/3] w-full object-cover" sizes="320px" />
                 ) : (
                   <div className="flex aspect-[2/3] w-full items-center justify-center bg-zinc-900 text-sm text-zinc-500">
                     Chưa có poster

@@ -29,8 +29,8 @@ const jsonLd = {
 
 export default async function Home() {
   const [newMovies, categories, animeData] = await Promise.all([
-    getNewUpdatedMovies({ limit: 30 }),
-    getTheLoaiList(),
+    getNewUpdatedMovies({ limit: 30 }).catch(() => ({ items: [] })),
+    getTheLoaiList().catch(() => []),
     getMoviesByCategory("hoat-hinh", { limit: 5 }).catch(() => ({ items: [] })),
   ]);
 

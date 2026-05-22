@@ -1,160 +1,91 @@
-'use client';
-
-import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 import MovieCard from '@/components/MovieCard';
-import { getTheLoaiList, getQuocGiaList, resolveImageUrl, type MovieListItem, type TheLoaiItem, type QuocGiaItem, PHIMAPI_BASE } from '@/lib/phimapi';
-interface FilterOptions {
-  category: string;
-  country: string;
-  year: string;
-  quality: string;
-  type: string;
+import { PHIMAPI_BASE, getTheLoaiList, getQuocGiaList, resolveImageUrl, type MovieListItem } from '@/lib/phimapi';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Tìm kiếm nâng cao - NhungMov',
+  description: 'Tìm kiếm phim nâng cao với nhiều bộ lọc: thể loại, quốc gia, năm, chất lượng. Xem phim online miễn phí tại NhungMov.',
+  alternates: { canonical: 'https://nhungmov.vercel.app/advanced-search' },
+};
+
+const YEARS = Array.from({ length: 20 }, (_, i) => String(2025 - i));
+const QUALITIES = ['HD', 'Full HD', '4K', '1080p', '720p'];
+const TYPES = [
+  { value: 'phim-vietsub', label: 'Phim Vietsub' },
+  { value: 'phim-bo', label: 'Phim Bộ' },
+  { value: 'phim-le', label: 'Phim Lẻ' },
+  { value: 'phim-chieu-rap', label: 'Phim Chiếu Rạp' },
+  { value: 'phim-hoat-hinh', label: 'Phim Hoạt Hình' },
+];
+
+async function fetchMovies(searchParams: Record<string, string | undefined>, page: number = 1): Promise<MovieListItem[]> {
+  const { q, category, country, year, quality, type } = searchParams;
+  const hasFilters = category || country || year || quality || type;
+
+  try {
+    let url: string;
+    if (q || hasFilters) {
+      url = `${PHIMAPI_BASE}/v1/api/tim-kiem?page=${page}&limit=24&sort_field=_id&sort_type=desc`;
+      if (q) url += `&keyword=${encodeURIComponent(q)}`;
+      if (category) url += `&category=${encodeURIComponent(category)}`;
+      if (country) url += `&country=${encodeURIComponent(country)}`;
+      if (year) url += `&year=${year}`;
+      if (quality) url += `&quality=${encodeURIComponent(quality)}`;
+      if (type) url += `&type_list=${encodeURIComponent(type)}`;
+
+      const res = await fetch(url, { headers: { 'User-Agent': 'NhungMov/1.0' }, next: { revalidate: 120 } });
+      const data = await res.json();
+
+      if (data.status === false && data.msg?.includes('keyword') && hasFilters) {
+        url = `${PHIMAPI_BASE}/v1/api/danh-sach/${type || 'phim-vietsub'}?page=${page}&sort_field=modified.time&sort_type=desc&limit=24`;
+        if (category) url += `&category=${encodeURIComponent(category)}`;
+        if (country) url += `&country=${encodeURIComponent(country)}`;
+        if (year) url += `&year=${year}`;
+
+        const res2 = await fetch(url, { headers: { 'User-Agent': 'NhungMov/1.0' }, next: { revalidate: 120 } });
+        const data2 = await res2.json();
+        return data2.data?.items || [];
+      }
+
+      return data.data?.items || [];
+    } else {
+      const res = await fetch(`${PHIMAPI_BASE}/v1/api/danh-sach/phim-vietsub?page=${page}&sort_field=modified.time&sort_type=desc&limit=24`, {
+        headers: { 'User-Agent': 'NhungMov/1.0' }, next: { revalidate: 300 },
+      });
+      const data = await res.json();
+      return data.data?.items || [];
+    }
+  } catch {
+    return [];
+  }
 }
 
-export default function AdvancedSearchPage() {
-  const searchParams = useSearchParams();
-  const q = searchParams.get('q') || '';
+function buildHref(params: Record<string, string | undefined>, extra: Record<string, string> = {}): string {
+  const sp = new URLSearchParams();
+  for (const [k, v] of Object.entries({ ...params, ...extra })) {
+    if (v) sp.set(k, v);
+  }
+  const qs = sp.toString();
+  return `/advanced-search${qs ? '?' + qs : ''}`;
+}
 
-  const [movies, setMovies] = useState<MovieListItem[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [categories, setCategories] = useState<TheLoaiItem[]>([]);
-  const [countries, setCountries] = useState<QuocGiaItem[]>([]);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
+export default async function AdvancedSearchPage({
+  searchParams: sp,
+}: {
+  searchParams: Promise<{ q?: string; category?: string; country?: string; year?: string; quality?: string; type?: string; page?: string }>;
+}) {
+  const params = await sp;
+  const q = params.q || '';
+  const page = Math.max(1, Number(params.page) || 1);
 
-  const [filters, setFilters] = useState<FilterOptions>({
-    category: '',
-    country: '',
-    year: '',
-    quality: '',
-    type: '',
-  });
+  const [movies, categories, countries] = await Promise.all([
+    fetchMovies(params, page),
+    getTheLoaiList().catch(() => []),
+    getQuocGiaList().catch(() => []),
+  ]);
 
-  const years = Array.from({ length: 20 }, (_, i) => String(2025 - i));
-  const qualities = ['HD', 'Full HD', '4K', '1080p', '720p'];
-  const types = [
-    { value: 'phim-vietsub', label: 'Phim Vietsub' },
-    { value: 'phim-bo', label: 'Phim Bộ' },
-    { value: 'phim-le', label: 'Phim Lẻ' },
-    { value: 'phim-chieu-rap', label: 'Phim Chiếu Rạp' },
-    { value: 'phim-hoat-hinh', label: 'Phim Hoạt Hình' },
-  ];
-
-  useEffect(() => {
-    const loadData = async () => {
-      const [catData, countryData] = await Promise.all([
-        getTheLoaiList(),
-        getQuocGiaList(),
-      ]);
-      setCategories(catData);
-      setCountries(countryData);
-    };
-    loadData();
-  }, []);
-
-  const searchMovies = useCallback(async (pageNum: number = 1, append = false) => {
-    setLoading(true);
-    try {
-      let url: string;
-      const hasFilters = filters.category || filters.country || filters.year || filters.quality || filters.type;
-
-      if (q || hasFilters) {
-        url = `${PHIMAPI_BASE}/v1/api/tim-kiem?page=${pageNum}&limit=24&sort_field=_id&sort_type=desc`;
-        
-        if (q) {
-          url += `&keyword=${encodeURIComponent(q)}`;
-        }
-        if (filters.category) {
-          url += `&category=${encodeURIComponent(filters.category)}`;
-        }
-        if (filters.country) {
-          url += `&country=${encodeURIComponent(filters.country)}`;
-        }
-        if (filters.year) {
-          url += `&year=${filters.year}`;
-        }
-        if (filters.quality) {
-          url += `&quality=${encodeURIComponent(filters.quality)}`;
-        }
-        if (filters.type) {
-          url += `&type_list=${encodeURIComponent(filters.type)}`;
-        }
-
-        const res = await fetch(url, { headers: { 'User-Agent': 'NhungMov/1.0' } });
-        const data = await res.json();
-        
-        if (data.status === false && data.msg?.includes('keyword')) {
-          if (filters.type || filters.category || filters.country || filters.year || filters.quality) {
-            url = `${PHIMAPI_BASE}/v1/api/danh-sach/${filters.type || 'phim-vietsub'}?page=${pageNum}&sort_field=modified.time&sort_type=desc&limit=24`;
-            
-            if (filters.category) {
-              url += `&category=${encodeURIComponent(filters.category)}`;
-            }
-            if (filters.country) {
-              url += `&country=${encodeURIComponent(filters.country)}`;
-            }
-            if (filters.year) {
-              url += `&year=${filters.year}`;
-            }
-            
-            const res2 = await fetch(url, { headers: { 'User-Agent': 'NhungMov/1.0' } });
-            const data2 = await res2.json();
-            const items = data2.data?.items || [];
-            
-            if (append) {
-              setMovies(prev => [...prev, ...items]);
-            } else {
-              setMovies(items);
-            }
-            setHasMore(items.length === 24);
-            setLoading(false);
-            return;
-          }
-        }
-        
-        const items = data.data?.items || [];
-
-        if (append) {
-          setMovies(prev => [...prev, ...items]);
-        } else {
-          setMovies(items);
-        }
-        setHasMore(items.length === 24);
-      } else {
-        const res = await fetch(`${PHIMAPI_BASE}/v1/api/danh-sach/phim-vietsub?page=${pageNum}&sort_field=modified.time&sort_type=desc&limit=24`, { headers: { 'User-Agent': 'NhungMov/1.0' } });
-        const data = await res.json();
-        const items = data.data?.items || [];
-        
-        if (append) {
-          setMovies(prev => [...prev, ...items]);
-        } else {
-          setMovies(items);
-        }
-        setHasMore(items.length === 24);
-      }
-    } catch (err) {
-      console.error('Search error:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [q, filters]);
-
-  useEffect(() => {
-    searchMovies(1, false);
-    setPage(1);
-  }, [q, filters.category, filters.country, filters.year, filters.quality, filters.type, searchMovies]);
-
-  const handleFilterChange = (key: keyof FilterOptions, value: string) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
-  };
-
-  const loadMore = () => {
-    const nextPage = page + 1;
-    setPage(nextPage);
-    searchMovies(nextPage, true);
-  };
+  const filters = { category: params.category || '', country: params.country || '', year: params.year || '', quality: params.quality || '', type: params.type || '' };
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
@@ -175,18 +106,14 @@ export default function AdvancedSearchPage() {
           </h1>
         </div>
 
-        <div className="mb-8 rounded-[28px] border border-white/10 bg-zinc-900/60 p-5 backdrop-blur">
+        <form method="GET" action="/advanced-search" className="mb-8 rounded-[28px] border border-white/10 bg-zinc-900/60 p-5 backdrop-blur">
           <h2 className="text-lg font-semibold text-white mb-4">Bộ lọc</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             <div>
               <label className="block text-xs uppercase tracking-[0.2em] text-zinc-500 mb-2">Loại phim</label>
-              <select
-                value={filters.type}
-                onChange={(e) => handleFilterChange('type', e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-zinc-800 px-3 py-2 text-sm text-white"
-              >
+              <select name="type" defaultValue={filters.type} className="w-full rounded-xl border border-white/10 bg-zinc-800 px-3 py-2 text-sm text-white">
                 <option value="">Tất cả</option>
-                {types.map(t => (
+                {TYPES.map(t => (
                   <option key={t.value} value={t.value}>{t.label}</option>
                 ))}
               </select>
@@ -194,11 +121,7 @@ export default function AdvancedSearchPage() {
 
             <div>
               <label className="block text-xs uppercase tracking-[0.2em] text-zinc-500 mb-2">Thể loại</label>
-              <select
-                value={filters.category}
-                onChange={(e) => handleFilterChange('category', e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-zinc-800 px-3 py-2 text-sm text-white"
-              >
+              <select name="category" defaultValue={filters.category} className="w-full rounded-xl border border-white/10 bg-zinc-800 px-3 py-2 text-sm text-white">
                 <option value="">Tất cả</option>
                 {categories.map(c => (
                   <option key={c.slug} value={c.slug}>{c.name}</option>
@@ -208,11 +131,7 @@ export default function AdvancedSearchPage() {
 
             <div>
               <label className="block text-xs uppercase tracking-[0.2em] text-zinc-500 mb-2">Quốc gia</label>
-              <select
-                value={filters.country}
-                onChange={(e) => handleFilterChange('country', e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-zinc-800 px-3 py-2 text-sm text-white"
-              >
+              <select name="country" defaultValue={filters.country} className="w-full rounded-xl border border-white/10 bg-zinc-800 px-3 py-2 text-sm text-white">
                 <option value="">Tất cả</option>
                 {countries.map(c => (
                   <option key={c.slug} value={c.slug}>{c.name}</option>
@@ -222,13 +141,9 @@ export default function AdvancedSearchPage() {
 
             <div>
               <label className="block text-xs uppercase tracking-[0.2em] text-zinc-500 mb-2">Năm</label>
-              <select
-                value={filters.year}
-                onChange={(e) => handleFilterChange('year', e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-zinc-800 px-3 py-2 text-sm text-white"
-              >
+              <select name="year" defaultValue={filters.year} className="w-full rounded-xl border border-white/10 bg-zinc-800 px-3 py-2 text-sm text-white">
                 <option value="">Tất cả</option>
-                {years.map(y => (
+                {YEARS.map(y => (
                   <option key={y} value={y}>{y}</option>
                 ))}
               </select>
@@ -236,34 +151,28 @@ export default function AdvancedSearchPage() {
 
             <div>
               <label className="block text-xs uppercase tracking-[0.2em] text-zinc-500 mb-2">Chất lượng</label>
-              <select
-                value={filters.quality}
-                onChange={(e) => handleFilterChange('quality', e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-zinc-800 px-3 py-2 text-sm text-white"
-              >
+              <select name="quality" defaultValue={filters.quality} className="w-full rounded-xl border border-white/10 bg-zinc-800 px-3 py-2 text-sm text-white">
                 <option value="">Tất cả</option>
-                {qualities.map(q => (
+                {QUALITIES.map(q => (
                   <option key={q} value={q}>{q}</option>
                 ))}
               </select>
             </div>
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-2">
-            <button
-              onClick={() => setFilters({ category: '', country: '', year: '', quality: '', type: '' })}
-              className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-zinc-300 hover:border-cyan-400/30"
-            >
-              Xóa lọc
-            </button>
-          </div>
-        </div>
+          {q && <input type="hidden" name="q" value={q} />}
 
-        {loading && movies.length === 0 ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="text-cyan-400 text-lg">Đang tìm kiếm...</div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button type="submit" className="rounded-full bg-cyan-400 px-5 py-2 text-sm font-semibold text-zinc-950 hover:bg-cyan-300 transition-colors">
+              Tìm kiếm
+            </button>
+            <Link href="/advanced-search" className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-zinc-300 hover:border-cyan-400/30 transition-colors">
+              Xóa lọc
+            </Link>
           </div>
-        ) : movies.length === 0 ? (
+        </form>
+
+        {movies.length === 0 ? (
           <div className="rounded-[28px] border border-white/10 bg-zinc-900/50 p-8 text-center text-zinc-400">
             Không tìm thấy phim nào phù hợp.
           </div>
@@ -284,17 +193,19 @@ export default function AdvancedSearchPage() {
               ))}
             </div>
 
-            {hasMore && (
-              <div className="mt-8 text-center">
-                <button
-                  onClick={loadMore}
-                  disabled={loading}
-                  className="rounded-full border border-cyan-400/30 bg-cyan-400/10 px-6 py-3 text-sm font-medium text-cyan-200 hover:bg-cyan-400/20 disabled:opacity-50"
-                >
-                  {loading ? 'Đang tải...' : 'Xem thêm'}
-                </button>
-              </div>
-            )}
+            <div className="mt-8 flex items-center justify-center gap-3">
+              {page > 1 && (
+                <Link href={buildHref(params, { page: String(page - 1) })} className="rounded-full border border-white/10 bg-white/5 px-5 py-2 text-sm text-zinc-300 hover:border-cyan-400/30 transition-colors">
+                  ← Trang trước
+                </Link>
+              )}
+              <span className="px-4 py-2 text-sm text-zinc-500">Trang {page}</span>
+              {movies.length === 24 && (
+                <Link href={buildHref(params, { page: String(page + 1) })} className="rounded-full border border-cyan-400/30 bg-cyan-400/10 px-5 py-2 text-sm font-medium text-cyan-200 hover:bg-cyan-400/20 transition-colors">
+                  Trang tiếp →
+                </Link>
+              )}
+            </div>
           </>
         )}
       </main>

@@ -5,7 +5,7 @@ import { getMoviesByCountry, getQuocGiaList, resolveImageUrl } from "@/lib/phima
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const countries = await getQuocGiaList();
+  const countries = await getQuocGiaList().catch(() => []);
   const current = countries.find((c) => c.slug === slug);
   const name = current?.name || slug;
   return {
@@ -29,8 +29,8 @@ export default async function CountryPage({
   const pageNum = Number.parseInt(rawPage || "1", 10);
 
   const [countries, res] = await Promise.all([
-    getQuocGiaList(),
-    getMoviesByCountry(slug, { page: Number.isFinite(pageNum) ? pageNum : 1 }),
+    getQuocGiaList().catch(() => []),
+    getMoviesByCountry(slug, { page: Number.isFinite(pageNum) ? pageNum : 1 }).catch(() => ({ items: [] })),
   ]);
 
   const current = countries.find((c) => c.slug === slug) || null;

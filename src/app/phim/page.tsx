@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 };
 
 export default async function PhimHomePage() {
-  const [newMovies, categories] = await Promise.all([getNewUpdatedMovies({ limit: 48 }), getTheLoaiList()]);
+  const [newMovies, categories] = await Promise.all([getNewUpdatedMovies({ limit: 48 }).catch(() => ({ items: [] })), getTheLoaiList().catch(() => [])]);
 
   const heroMovie = newMovies.items[0] ?? null;
   const featuredRow = newMovies.items.slice(1, 5);
