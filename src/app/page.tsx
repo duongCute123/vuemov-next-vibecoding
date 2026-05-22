@@ -1,10 +1,12 @@
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import MovieCard from "@/components/MovieCard";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
-import HeroSlideshow from "@/components/HeroSlideshow";
 import { AnimatedSection, AnimatedGrid, AnimatedCard } from "@/components/AnimatedGrid";
 import { getNewUpdatedMovies, getMoviesByCategory, getTheLoaiList, resolveImageUrl } from "@/lib/phimapi";
+
+const HeroSlideshow = dynamic(() => import("@/components/HeroSlideshow"));
 
 const jsonLd = {
   "@context": "https://schema.org",
