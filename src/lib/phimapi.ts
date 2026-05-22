@@ -3,9 +3,11 @@ export const PHIMIMG_CDN = process.env.NEXT_PUBLIC_PHIMIMG_CDN || "https://phimi
 
 export function resolveImageUrl(url?: string | null): string | null {
   if (!url) return null;
-  if (url.startsWith("http://") || url.startsWith("https://")) return url;
-  if (url.startsWith("/")) return `${PHIMIMG_CDN}${url}`;
-  return `${PHIMIMG_CDN}/${url}`;
+  let resolved = url;
+  if (resolved.startsWith("http://")) resolved = resolved.replace("http://", "https://");
+  if (resolved.startsWith("https://")) return resolved;
+  if (resolved.startsWith("/")) return `${PHIMIMG_CDN}${resolved}`;
+  return `${PHIMIMG_CDN}/${resolved}`;
 }
 
 interface ApiError {

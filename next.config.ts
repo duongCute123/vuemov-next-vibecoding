@@ -15,6 +15,9 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "image.tmdb.org" },
     ],
     formats: ["image/webp", "image/avif"],
+    deviceSizes: [480, 640, 768, 1024, 1280, 1536],
+    imageSizes: [96, 128, 256, 384],
+    minimumCacheTTL: 31536000,
   },
   async headers() {
     return [

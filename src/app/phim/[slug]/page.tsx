@@ -145,7 +145,7 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ sl
             <div className="mx-auto w-full max-w-[320px]">
               <div className="overflow-hidden rounded-[28px] border border-white/10 bg-zinc-900/70 shadow-2xl shadow-black/40 backdrop-blur">
                 {posterUrl ? (
-                  <Image src={posterUrl} alt={title} width={320} height={480} className="aspect-[2/3] w-full object-cover" sizes="320px" />
+                  <Image src={posterUrl} alt={title} width={320} height={480} className="aspect-[2/3] w-full object-cover" sizes="320px" priority />
                 ) : (
                   <div className="flex aspect-[2/3] w-full items-center justify-center bg-zinc-900 text-sm text-zinc-500">
                     Chưa có poster
