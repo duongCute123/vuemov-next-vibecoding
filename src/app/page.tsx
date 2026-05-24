@@ -1,32 +1,51 @@
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import type { Metadata } from "next";
 import MovieCard from "@/components/MovieCard";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { AnimatedSection, AnimatedGrid, AnimatedCard } from "@/components/AnimatedGrid";
 import { getNewUpdatedMovies, getMoviesByCategory, getTheLoaiList, resolveImageUrl } from "@/lib/phimapi";
+import { homePageMetadata } from "@/lib/metadata";
+
+export const metadata: Metadata = homePageMetadata();
 
 const HeroSlideshow = dynamic(() => import("@/components/HeroSlideshow"));
 
 const jsonLd = {
   "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": "NhungMov",
-  "url": "https://nhungmov.vercel.app",
-  "description": "Xem phim online miễn phí, phim mới nhất, phim chất lượng cao, vietsub",
-  "potentialAction": {
-    "@type": "SearchAction",
-    "target": "https://nhungmov.vercel.app/search?q={search_term_string}",
-    "query-input": "required name=search_term_string"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "NhungMov",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "https://nhungmov.vercel.app/logo.svg"
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://nhungmov.vercel.app/#organization",
+      "name": "NhungMov",
+      "url": "https://nhungmov.vercel.app",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://nhungmov.vercel.app/logo.svg"
+      },
+      "description": "Xem phim online miễn phí, phim mới nhất, phim chất lượng cao, vietsub",
+      "sameAs": [
+        "https://www.facebook.com/nhungmov",
+        "https://www.youtube.com/@nhungmov"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://nhungmov.vercel.app/#website",
+      "url": "https://nhungmov.vercel.app",
+      "name": "NhungMov",
+      "alternateName": "NhungMov - Xem phim online",
+      "description": "Xem phim online miễn phí, phim mới nhất, phim chất lượng cao, vietsub",
+      "publisher": { "@id": "https://nhungmov.vercel.app/#organization" },
+      "inLanguage": "vi",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://nhungmov.vercel.app/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
     }
-  }
+  ]
 };
 
 export default async function Home() {

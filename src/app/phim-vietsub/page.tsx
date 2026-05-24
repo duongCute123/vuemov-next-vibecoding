@@ -4,14 +4,13 @@ import MovieCard from "@/components/MovieCard";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { getNewUpdatedMovies, getTheLoaiList, resolveImageUrl } from "@/lib/phimapi";
+import { createPageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Phim vietsub - NhungMov",
-  description: "Xem phim vietsub online miễn phí, phim có thuyết minh tiếng Việt chất lượng cao. Kho phim vietsub đa dạng thể loại.",
-  alternates: {
-    canonical: "https://nhungmov.vercel.app/phim-vietsub",
-  },
-};
+export const metadata: Metadata = createPageMetadata(
+  "Phim vietsub",
+  "Xem phim vietsub online miễn phí, phim có thuyết minh tiếng Việt chất lượng cao. Kho phim vietsub đa dạng thể loại.",
+  "/phim-vietsub",
+);
 
 type PageProps = { searchParams: Promise<{ page?: string }> };
 

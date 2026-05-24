@@ -72,9 +72,16 @@ export interface MovieDetail {
   quality?: string;
   lang?: string;
   episode_current?: string;
+  episode_total?: string;
+  time?: string;
+  year?: number;
   content?: string;
   created?: string;
+  modified?: string;
   director?: string;
+  actor?: string[];
+  category?: Array<{ name: string; slug: string }>;
+  country?: Array<{ name: string; slug: string }>;
 }
 
 export interface TheLoaiItem {

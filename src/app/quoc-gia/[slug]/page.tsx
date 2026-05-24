@@ -8,11 +8,25 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const countries = await getQuocGiaList().catch(() => []);
   const current = countries.find((c) => c.slug === slug);
   const name = current?.name || slug;
+  const canonical = `https://nhungmov.vercel.app/quoc-gia/${slug}`;
+  const title = `Phim ${name}`;
+  const description = `Xem phim ${name} online miễn phí, phim ${name} hay nhất vietsub chất lượng cao cập nhật liên tục.`;
   return {
-    title: `Phim ${name} - NhungMov`,
-    description: `Xem phim ${name} online miễn phí, phim ${name} hay nhất vietsub chất lượng cao cập nhật liên tục.`,
-    alternates: {
-      canonical: `https://nhungmov.vercel.app/quoc-gia/${slug}`,
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      type: "website",
+      locale: "vi_VN",
+      url: canonical,
+      siteName: "NhungMov",
+      title: `${title} | NhungMov`,
+      description,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} | NhungMov`,
+      description,
     },
   };
 }

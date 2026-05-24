@@ -8,11 +8,25 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const categories = await getTheLoaiList().catch(() => []);
   const current = categories.find((c) => c.slug === slug);
   const name = current?.name || slug;
+  const canonical = `https://nhungmov.vercel.app/the-loai/${slug}`;
+  const title = name;
+  const description = `Xem phim thể loại ${name} online miễn phí, tuyển tập phim ${name} mới nhất vietsub chất lượng cao.`;
   return {
-    title: `${name} - NhungMov`,
-    description: `Xem phim thể loại ${name} online miễn phí, tuyển tập phim ${name} mới nhất vietsub chất lượng cao.`,
-    alternates: {
-      canonical: `https://nhungmov.vercel.app/the-loai/${slug}`,
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      type: "website",
+      locale: "vi_VN",
+      url: canonical,
+      siteName: "NhungMov",
+      title: `${title} | NhungMov`,
+      description,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} | NhungMov`,
+      description,
     },
   };
 }

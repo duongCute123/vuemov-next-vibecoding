@@ -4,14 +4,13 @@ import MovieCard from "@/components/MovieCard";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { getNewUpdatedMovies, getTheLoaiList, resolveImageUrl } from "@/lib/phimapi";
+import { createPageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Phim lẻ - NhungMov",
-  description: "Xem phim lẻ online miễn phí, phim điện ảnh mới nhất chất lượng cao vietsub. Tuyển chọn phim lẻ hàng đầu.",
-  alternates: {
-    canonical: "https://nhungmov.vercel.app/phim-le",
-  },
-};
+export const metadata: Metadata = createPageMetadata(
+  "Phim lẻ",
+  "Xem phim lẻ online miễn phí, phim điện ảnh mới nhất chất lượng cao vietsub. Tuyển chọn phim lẻ hàng đầu.",
+  "/phim-le",
+);
 
 export default async function PhimLePage({
   searchParams,

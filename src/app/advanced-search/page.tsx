@@ -2,12 +2,13 @@ import Link from 'next/link';
 import MovieCard from '@/components/MovieCard';
 import { PHIMAPI_BASE, getTheLoaiList, getQuocGiaList, resolveImageUrl, type MovieListItem } from '@/lib/phimapi';
 import type { Metadata } from 'next';
+import { createPageMetadata } from '@/lib/metadata';
 
-export const metadata: Metadata = {
-  title: 'Tìm kiếm nâng cao - NhungMov',
-  description: 'Tìm kiếm phim nâng cao với nhiều bộ lọc: thể loại, quốc gia, năm, chất lượng. Xem phim online miễn phí tại NhungMov.',
-  alternates: { canonical: 'https://nhungmov.vercel.app/advanced-search' },
-};
+export const metadata: Metadata = createPageMetadata(
+  'Tìm kiếm nâng cao',
+  'Tìm kiếm phim nâng cao với nhiều bộ lọc: thể loại, quốc gia, năm, chất lượng. Xem phim online miễn phí tại NhungMov.',
+  '/advanced-search',
+);
 
 const YEARS = Array.from({ length: 20 }, (_, i) => String(2025 - i));
 const QUALITIES = ['HD', 'Full HD', '4K', '1080p', '720p'];

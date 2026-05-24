@@ -4,14 +4,13 @@ import MovieCard from "@/components/MovieCard";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { getNewUpdatedMovies, getTheLoaiList, resolveImageUrl } from "@/lib/phimapi";
+import { createPageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Phim bộ - NhungMov",
-  description: "Xem phim bộ online miễn phí, phim truyền hình Hàn Quốc, Trung Quốc, Nhật Bản, Thái Lan vietsub cập nhật liên tục.",
-  alternates: {
-    canonical: "https://nhungmov.vercel.app/phim-bo",
-  },
-};
+export const metadata: Metadata = createPageMetadata(
+  "Phim bộ",
+  "Xem phim bộ online miễn phí, phim truyền hình Hàn Quốc, Trung Quốc, Nhật Bản, Thái Lan vietsub cập nhật liên tục.",
+  "/phim-bo",
+);
 
 export default async function PhimBoPage({
   searchParams,
@@ -40,12 +39,27 @@ export default async function PhimBoPage({
     ],
   };
 
+  const itemListJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Phim bộ",
+    "url": `https://nhungmov.vercel.app/phim-bo?page=${page}`,
+    "itemListElement": movies.items.map((m, i) => ({
+      "@type": "ListItem",
+      "position": i + 1,
+      "item": {
+        "@type": "Movie",
+        "name": m.name,
+        "url": `https://nhungmov.vercel.app/phim/${m.slug}`,
+        "image": resolveImageUrl(m.poster_url) || resolveImageUrl(m.thumb_url) || undefined,
+      },
+    })),
+  };
+
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      {movies.items.length > 0 && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }} />}
       <SiteHeader 
         categories={topCategories.map((category) => ({ name: category.name, slug: category.slug }))} 
         searchPlaceholder="Tìm kiếm phim bộ..." 

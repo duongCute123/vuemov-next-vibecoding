@@ -4,14 +4,13 @@ import MovieCard from "@/components/MovieCard";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { getMoviesByCategory, getTheLoaiList, resolveImageUrl } from "@/lib/phimapi";
+import { createPageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "TV Shows - NhungMov",
-  description: "Xem TV shows online miễn phí. Các chương trình truyền hình thực tế, talkshow, gameshow hấp dẫn vietsub.",
-  alternates: {
-    canonical: "https://nhungmov.vercel.app/tv-shows",
-  },
-};
+export const metadata: Metadata = createPageMetadata(
+  "TV Shows",
+  "Xem TV shows online miễn phí. Các chương trình truyền hình thực tế, talkshow, gameshow hấp dẫn vietsub.",
+  "/tv-shows",
+);
 
 type PageProps = { searchParams: Promise<{ page?: string }> };
 
@@ -29,8 +28,18 @@ export default async function TvShowsPage({ searchParams }: PageProps) {
   const prevPage = Math.max(1, page - 1);
   const nextPage = page + 1;
 
+  const breadCrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Trang chủ", "item": "https://nhungmov.vercel.app" },
+      { "@type": "ListItem", "position": 2, "name": "TV Shows", "item": "https://nhungmov.vercel.app/tv-shows" },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadCrumbLd) }} />
       <SiteHeader categories={topCategories.map((c) => ({ name: c.name, slug: c.slug }))} searchPlaceholder="Tìm kiếm..." />
       <main className="mx-auto max-w-7xl px-4 py-6">
         <div className="mb-6 flex items-center gap-3">

@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
 
 interface HeroMovie {
   slug: string;
@@ -20,18 +19,15 @@ interface HeroMovie {
 
 export default function HeroSlideshow({ movies }: { movies: HeroMovie[] }) {
   const [current, setCurrent] = useState(0);
-  const [dir, setDir] = useState(1);
   const [paused, setPaused] = useState(false);
   const total = movies.length;
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const next = useCallback(() => {
-    setDir(1);
     setCurrent((c) => (c + 1) % total);
   }, [total]);
 
   const prev = useCallback(() => {
-    setDir(-1);
     setCurrent((c) => (c - 1 + total) % total);
   }, [total]);
 
@@ -52,15 +48,6 @@ export default function HeroSlideshow({ movies }: { movies: HeroMovie[] }) {
 
   if (!movies.length) return null;
 
-  const movie = movies[current];
-  const heroImage = movie.thumb_url || movie.poster_url;
-
-  const bgVariants = {
-    enter: () => ({ scale: 1.08, opacity: 0 }),
-    center: { scale: 1, opacity: 1 },
-    exit: () => ({ scale: 0.96, opacity: 0 }),
-  };
-
   return (
     <section
       className="relative h-[70vh] min-h-[500px] overflow-hidden"
@@ -70,45 +57,48 @@ export default function HeroSlideshow({ movies }: { movies: HeroMovie[] }) {
       aria-label="Hero slideshow"
     >
       <div className="absolute inset-0">
-        <AnimatePresence initial={false} custom={dir} mode="popLayout">
-          <motion.div
-            key={movie.slug}
-            custom={dir}
-            variants={bgVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ duration: 0.8, ease: "easeInOut" }}
-            className="absolute inset-0"
-          >
-            {heroImage ? (
-              <Image
-                src={heroImage}
-                alt={movie.name}
-                fill
-                className="object-cover"
-                priority={current === 0}
-                sizes="100vw"
-              />
-            ) : (
-              <div className="w-full h-full bg-zinc-800" />
-            )}
-          </motion.div>
-        </AnimatePresence>
+        {movies.map((movie, i) => {
+          const heroImage = movie.thumb_url || movie.poster_url;
+          return (
+            <div
+              key={movie.slug}
+              className={`absolute inset-0 transition-all duration-700 ease-in-out ${
+                i === current
+                  ? "opacity-100 scale-100"
+                  : "opacity-0 scale-105 pointer-events-none"
+              }`}
+              aria-hidden={i !== current}
+            >
+              {heroImage ? (
+                <Image
+                  src={heroImage}
+                  alt={movie.name}
+                  fill
+                  className="object-cover"
+                  priority={i === 0}
+                  sizes="100vw"
+                />
+              ) : (
+                <div className="w-full h-full bg-zinc-800" />
+              )}
+            </div>
+          );
+        })}
       </div>
 
       <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/80 to-transparent pointer-events-none" />
       <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-zinc-950/50 pointer-events-none" />
 
       <div className="relative mx-auto max-w-7xl px-4 h-full flex items-center">
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div
+        {movies.map((movie, i) => (
+          <div
             key={movie.slug}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.4 }}
-            className="max-w-xl"
+            className={`max-w-xl transition-all duration-500 ease-out ${
+              i === current
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-4 absolute pointer-events-none"
+            }`}
+            aria-hidden={i !== current}
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-red-500/20 rounded-full text-xs font-semibold text-red-400 mb-4">
               <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
@@ -143,8 +133,8 @@ export default function HeroSlideshow({ movies }: { movies: HeroMovie[] }) {
                 + Thêm vào list
               </button>
             </div>
-          </motion.div>
-        </AnimatePresence>
+          </div>
+        ))}
       </div>
 
       {total > 1 && (
@@ -171,7 +161,7 @@ export default function HeroSlideshow({ movies }: { movies: HeroMovie[] }) {
             {movies.slice(0, 7).map((m, i) => (
               <button
                 key={m.slug}
-                onClick={() => { setDir(i > current ? 1 : -1); setCurrent(i); }}
+                onClick={() => setCurrent(i)}
                 className={`rounded-full transition-all duration-300 ${
                   i === current
                     ? "w-6 h-2 bg-red-500"

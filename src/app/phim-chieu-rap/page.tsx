@@ -4,14 +4,13 @@ import MovieCard from "@/components/MovieCard";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { getMoviesByCategory, getTheLoaiList, resolveImageUrl } from "@/lib/phimapi";
+import { createPageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Phim chiếu rạp - NhungMov",
-  description: "Xem phim chiếu rạp online miễn phí. Phim điện ảnh mới nhất, phim bom tấn Hollywood và Châu Á vietsub chất lượng cao.",
-  alternates: {
-    canonical: "https://nhungmov.vercel.app/phim-chieu-rap",
-  },
-};
+export const metadata: Metadata = createPageMetadata(
+  "Phim chiếu rạp",
+  "Xem phim chiếu rạp online miễn phí. Phim điện ảnh mới nhất, phim bom tấn Hollywood và Châu Á vietsub chất lượng cao.",
+  "/phim-chieu-rap",
+);
 
 type PageProps = { searchParams: Promise<{ page?: string }> };
 

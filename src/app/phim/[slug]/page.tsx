@@ -20,27 +20,35 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const { movie } = await getMovieDetail(slug).catch(() => ({ movie: null, episodes: [] }));
   if (!movie) {
-    return { title: "Không tìm thấy phim - NhungMov" };
+    return { title: "Không tìm thấy phim" };
   }
   const title = movie?.name || movie?.origin_name || "Phim";
-  const description = movie?.content ? stripHtml(movie.content).slice(0, 160) : `Xem phim ${title} chất lượng cao tại NhungMov.`;
+  const genres = movie?.category?.map((c) => c.name) ?? [];
+  const descParts = [`Xem phim ${title}`];
+  if (genres.length) descParts.push(`thể loại ${genres.join(", ")}`);
+  if (movie?.origin_name) descParts.push(`(${movie.origin_name})`);
+  descParts.push("vietsub full HD chất lượng cao tại NhungMov.");
+  if (movie?.episode_current) descParts.push(`Tập mới nhất: ${movie.episode_current}.`);
+  const description = movie?.content ? stripHtml(movie.content).slice(0, 160) : descParts.join(" ");
   const imageUrl = resolveImageUrl(movie?.poster_url || movie?.thumb_url);
   const keywords = [
     `xem phim ${title}`,
     title,
     movie?.origin_name,
+    ...genres,
     movie?.director,
     "xem phim online",
     "phim vietsub",
     "phim hd",
+    movie?.country?.[0]?.name,
   ].filter(Boolean).join(', ');
 
   return {
-    title: `${title} - Xem phim HD Vietsub | NhungMov`,
+    title: `${title} - Xem phim HD Vietsub`,
     description,
     keywords,
     openGraph: {
-      title,
+      title: `${title} - Xem phim HD Vietsub | NhungMov`,
       description,
       url: `https://nhungmov.vercel.app/phim/${slug}`,
       siteName: 'NhungMov',
@@ -94,19 +102,58 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ sl
     { label: "Số server", value: String(availableServers.length) },
   ].filter(Boolean) as Array<{ label: string; value: string }>;
 
-  const jsonLd = {
+  const genres = detail?.category?.map((c) => c.name) ?? [];
+  const countryOrigin = detail?.country?.[0]?.name;
+  const firstActor = detail?.actor?.[0];
+
+  const movieSchema: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "Movie",
     "name": title,
-    "description": summary,
-    "image": posterUrl,
-    "dateCreated": (() => {
-      const d = detail?.created;
-      if (!d) return undefined;
-      const date = new Date(d);
-      return isNaN(date.getTime()) ? undefined : date.toISOString();
+    "alternateName": detail?.origin_name || undefined,
+    "description": summary.slice(0, 250),
+    "image": posterUrl || undefined,
+    "datePublished": (() => {
+      if (!detail?.created) return undefined;
+      const d = new Date(detail.created);
+      return isNaN(d.getTime()) ? undefined : d.toISOString();
     })(),
-    "director": detail?.director ? { "@type": "Person", "name": detail.director } : undefined,
+    "dateModified": (() => {
+      if (!detail?.modified) return undefined;
+      const d = new Date(detail.modified);
+      return isNaN(d.getTime()) ? undefined : d.toISOString();
+    })(),
+    "duration": detail?.time ? `PT${detail.time.replace(/[^0-9]/g, "")}M` : undefined,
+  };
+
+  if (detail?.director) {
+    movieSchema["director"] = { "@type": "Person", "name": detail.director };
+  }
+
+  if (firstActor) {
+    movieSchema["actor"] = [{ "@type": "Person", "name": firstActor }];
+  }
+
+  if (genres.length > 0) {
+    movieSchema["genre"] = genres;
+  }
+
+  if (countryOrigin) {
+    movieSchema["countryOfOrigin"] = { "@type": "Country", "name": countryOrigin };
+  }
+
+  if (detail?.lang) {
+    movieSchema["subtitleLanguage"] = detail.lang;
+  }
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Trang chủ", "item": "https://nhungmov.vercel.app" },
+      { "@type": "ListItem", "position": 2, "name": "Phim", "item": "https://nhungmov.vercel.app/phim" },
+      { "@type": "ListItem", "position": 3, "name": title, "item": `https://nhungmov.vercel.app/phim/${slug}` },
+    ],
   };
 
   return (
@@ -114,7 +161,11 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ sl
       <AddHistoryTracker slug={slug} />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(movieSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
       
       <section className="relative isolate overflow-hidden border-b border-white/10">

@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import { useAuth } from "@/lib/auth-context";
 import { addHistory } from "@/lib/api-service";
 
@@ -104,12 +103,9 @@ export default function EpisodePlayer(props: {
         </div>
       ) : null}
 
-      <motion.div
+      <div
         key={active?.slug}
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3 }}
-        className="w-full aspect-video bg-black rounded-xl overflow-hidden border border-white/10"
+        className="w-full aspect-video bg-black rounded-xl overflow-hidden border border-white/10 animate-fade-scale-in"
       >
         {activeSrc ? (
           <iframe 
@@ -122,7 +118,7 @@ export default function EpisodePlayer(props: {
         ) : (
           <div className="w-full h-full flex items-center justify-center text-zinc-500">Chưa có nguồn phát</div>
         )}
-      </motion.div>
+      </div>
     </div>
   );
 }

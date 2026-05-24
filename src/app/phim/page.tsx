@@ -4,14 +4,13 @@ import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { getNewUpdatedMovies, getTheLoaiList, resolveImageUrl } from "@/lib/phimapi";
 import type { Metadata } from "next";
+import { createPageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Phim - NhungMov",
-  description: "Kho phim online miễn phí chất lượng cao. Xem phim Vietsub, phim lẻ, phim bộ, phim chiếu rạp mới nhất.",
-  alternates: {
-    canonical: "https://nhungmov.vercel.app/phim",
-  },
-};
+export const metadata: Metadata = createPageMetadata(
+  "Phim",
+  "Kho phim online miễn phí chất lượng cao. Xem phim Vietsub, phim lẻ, phim bộ, phim chiếu rạp mới nhất.",
+  "/phim",
+);
 
 export default async function PhimHomePage() {
   const [newMovies, categories] = await Promise.all([getNewUpdatedMovies({ limit: 48 }).catch(() => ({ items: [] })), getTheLoaiList().catch(() => [])]);

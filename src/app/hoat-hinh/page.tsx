@@ -4,14 +4,13 @@ import MovieCard from "@/components/MovieCard";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { getNewUpdatedMovies, getTheLoaiList, resolveImageUrl } from "@/lib/phimapi";
+import { createPageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Hoạt hình - NhungMov",
-  description: "Xem phim hoạt hình online miễn phí. Anime, hoạt hình Disney, Pixar và phim hoạt hình Trung Quốc, Nhật Bản vietsub.",
-  alternates: {
-    canonical: "https://nhungmov.vercel.app/hoat-hinh",
-  },
-};
+export const metadata: Metadata = createPageMetadata(
+  "Hoạt hình",
+  "Xem phim hoạt hình online miễn phí. Anime, hoạt hình Disney, Pixar và phim hoạt hình Trung Quốc, Nhật Bản vietsub.",
+  "/hoat-hinh",
+);
 
 export default async function HoatHinhPage({
   searchParams,
@@ -29,8 +28,18 @@ export default async function HoatHinhPage({
   const prevPage = Math.max(1, page - 1);
   const nextPage = page + 1;
 
+  const breadCrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Trang chủ", "item": "https://nhungmov.vercel.app" },
+      { "@type": "ListItem", "position": 2, "name": "Hoạt hình", "item": "https://nhungmov.vercel.app/hoat-hinh" },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadCrumbLd) }} />
       <SiteHeader 
         categories={topCategories.map((category) => ({ name: category.name, slug: category.slug }))} 
         searchPlaceholder="Tìm kiếm anime..." 

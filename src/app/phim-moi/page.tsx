@@ -4,14 +4,13 @@ import MovieCard from "@/components/MovieCard";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { getNewUpdatedMovies, getTheLoaiList, resolveImageUrl } from "@/lib/phimapi";
+import { createPageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Phim mới - NhungMov",
-  description: "Phim mới nhất cập nhật hằng ngày. Xem phim online vietsub chất lượng cao, phim mới ra rạp, phim hot trong nước và quốc tế.",
-  alternates: {
-    canonical: "https://nhungmov.vercel.app/phim-moi",
-  },
-};
+export const metadata: Metadata = createPageMetadata(
+  "Phim mới",
+  "Phim mới nhất cập nhật hằng ngày. Xem phim online vietsub chất lượng cao, phim mới ra rạp, phim hot trong nước và quốc tế.",
+  "/phim-moi",
+);
 
 export default async function PhimMoiPage({
   searchParams,

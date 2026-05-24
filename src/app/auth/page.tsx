@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
-import { motion } from 'framer-motion';
+
 
 export default function AuthPage() {
   const searchParams = useSearchParams();
@@ -48,11 +48,7 @@ export default function AuthPage() {
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.1),transparent_40%),radial-gradient(circle_at_bottom_right,rgba(168,85,247,0.1),transparent_40%)]" aria-hidden="true" />
       
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="relative w-full max-w-md"
+      <div className="relative w-full max-w-md animate-fade-in-up"
       >
         <div className="bg-zinc-900/80 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl">
           <div className="text-center mb-8">
@@ -70,11 +66,7 @@ export default function AuthPage() {
 
           <form onSubmit={handleSubmit} className="space-y-5" aria-label={isLogin ? 'Đăng nhập' : 'Đăng ký'}>
             {!isLogin && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-              >
+              <div>
                 <label htmlFor="username" className="block text-sm font-medium text-zinc-300 mb-2">
                   Tên người dùng
                 </label>
@@ -89,7 +81,7 @@ export default function AuthPage() {
                   autoComplete="username"
                   aria-required={!isLogin}
                 />
-              </motion.div>
+              </div>
             )}
             
             <div>
@@ -150,17 +142,14 @@ export default function AuthPage() {
             </div>
 
             {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm flex items-start gap-2"
+              <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm flex items-start gap-2 animate-fade-in"
                 role="alert"
               >
                 <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span>{error}</span>
-              </motion.div>
+              </div>
             )}
 
             <button
@@ -202,7 +191,7 @@ export default function AuthPage() {
             </Link>
           </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

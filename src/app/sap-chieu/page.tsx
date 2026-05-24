@@ -4,14 +4,13 @@ import MovieCard from "@/components/MovieCard";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import { searchMovies, getTheLoaiList, resolveImageUrl } from "@/lib/phimapi";
+import { createPageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "Phim sắp chiếu - NhungMov",
-  description: "Phim sắp chiếu mới nhất. Cập nhật lịch chiếu phim hot sắp ra mắt tại rạp, phim bộ sắp lên sóng.",
-  alternates: {
-    canonical: "https://nhungmov.vercel.app/sap-chieu",
-  },
-};
+export const metadata: Metadata = createPageMetadata(
+  "Phim sắp chiếu",
+  "Phim sắp chiếu mới nhất. Cập nhật lịch chiếu phim hot sắp ra mắt tại rạp, phim bộ sắp lên sóng.",
+  "/sap-chieu",
+);
 
 type PageProps = { searchParams: Promise<{ page?: string }> };
 
