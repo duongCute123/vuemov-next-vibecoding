@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { login as loginApi, register as registerApi, getToken, getCurrentUser, logout as apiLogout } from '../api-service';
+import { login as loginApi, register as registerApi, getToken, getCurrentUser, logout as apiLogout, updateProfile as updateProfileApi } from '../api-service';
 
 interface User {
   id: string;
@@ -47,6 +47,21 @@ export const register = createAsyncThunk(
       }
       return rejectWithValue(result.message || 'Registration failed');
     } catch (err) {
+      return rejectWithValue('Network error');
+    }
+  }
+);
+
+export const updateProfile = createAsyncThunk(
+  'auth/updateProfile',
+  async (data: { username?: string; avatar?: string }, { rejectWithValue }) => {
+    try {
+      const result = await updateProfileApi(data);
+      if (result.success) {
+        return getCurrentUser();
+      }
+      return rejectWithValue(result.message || 'Update failed');
+    } catch {
       return rejectWithValue('Network error');
     }
   }

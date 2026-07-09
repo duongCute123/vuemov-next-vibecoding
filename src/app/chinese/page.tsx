@@ -122,7 +122,7 @@ export default function ChineseLearning() {
   const currentVocab = lessons[currentLesson].vocabulary[currentWordIndex];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-900 via-zinc-900 to-amber-900 text-white">
+    <main className="min-h-screen bg-gradient-to-br from-red-900 via-zinc-900 to-amber-900 text-white">
       <div className="mx-auto max-w-4xl p-4">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-black mb-2">🇨🇳 Học Tiếng Trung</h1>
@@ -351,6 +351,6 @@ export default function ChineseLearning() {
           </div>
         )}
       </div>
-    </div>
+    </main>
   );
 }

@@ -2,7 +2,9 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import EpisodePlayer from "@/components/EpisodePlayer";
 import AddHistoryTracker from "@/components/AddHistoryTracker";
-import { getMovieDetail, resolveImageUrl, type MovieDetail } from "@/lib/phimapi";
+import { getMovieDetail, getNewUpdatedMovies, resolveImageUrl, type MovieDetail, type MovieListItem } from "@/lib/phimapi";
+import MovieCard from "@/components/MovieCard";
+import ShareButtons from "./ShareButtons";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -10,6 +12,8 @@ import { notFound } from "next/navigation";
 const CommentsSection = dynamic(() => import("@/components/CommentsSection"), {
   loading: () => <div className="rounded-[28px] border border-white/10 bg-zinc-900/50 p-6 text-center text-sm text-zinc-400 animate-pulse">Đang tải bình luận...</div>,
 });
+
+const AISummary = dynamic(() => import("@/components/AISummary"));
 
 function stripHtml(value?: string) {
   if (!value) return "";
@@ -77,6 +81,10 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ sl
   }
 
   const detail = movie as MovieDetail | null;
+  const firstCategory = detail?.category?.[0]?.slug;
+  const relatedMovies: MovieListItem[] = firstCategory
+    ? (await getNewUpdatedMovies({ type_list: "phim-vietsub", limit: 12 }).catch(() => ({ items: [] }))).items.filter((m) => m.slug !== slug).slice(0, 6)
+    : [];
   const title = detail?.name || detail?.origin_name || slug;
   const originTitle = detail?.origin_name && detail.origin_name !== title ? detail.origin_name : null;
   const posterUrl = resolveImageUrl(detail?.poster_url || detail?.thumb_url);
@@ -319,6 +327,8 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ sl
               </div>
             </div>
 
+            <AISummary slug={slug} />
+
             <div className="rounded-[28px] border border-white/10 bg-zinc-900/60 p-5 shadow-xl shadow-black/20 backdrop-blur">
               <div className="flex items-center justify-between gap-3">
                 <h3 className="text-lg font-semibold text-white">Server hiện có</h3>
@@ -347,6 +357,13 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ sl
             </div>
 
             <div className="rounded-[28px] border border-white/10 bg-gradient-to-br from-cyan-500/10 via-zinc-900/70 to-fuchsia-500/10 p-5 shadow-xl shadow-black/20">
+              <h3 className="text-lg font-semibold text-white">Chia sẻ</h3>
+              <div className="mt-4">
+                <ShareButtons slug={slug} />
+              </div>
+            </div>
+
+            <div className="rounded-[28px] border border-white/10 bg-gradient-to-br from-cyan-500/10 via-zinc-900/70 to-fuchsia-500/10 p-5 shadow-xl shadow-black/20">
               <h3 className="text-lg font-semibold text-white">Mẹo trải nghiệm</h3>
               <ul className="mt-4 space-y-2 text-sm text-zinc-300">
                 <li>- Ưu tiên xem ở chế độ toàn màn hình để có trải nghiệm tốt nhất.</li>
@@ -358,6 +375,33 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ sl
         </div>
 
         <CommentsSection slug={slug} movieTitle={title} />
+
+        {relatedMovies.length > 0 && (
+          <section className="mt-10">
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-[0.24em] text-zinc-500">Có thể bạn quan tâm</p>
+                <h2 className="mt-1 text-2xl font-semibold text-white">Phim liên quan</h2>
+              </div>
+              <Link href="/phim" className="text-sm text-cyan-400 hover:text-cyan-300">Xem thêm →</Link>
+            </div>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-12">
+              {relatedMovies.map((m) => (
+                <MovieCard
+                  key={m.slug}
+                  slug={m.slug}
+                  title={m.name}
+                  posterUrl={resolveImageUrl(m.poster_url) ?? resolveImageUrl(m.thumb_url)}
+                  subTitle={m.lang ?? m.episode_current ?? m.quality ?? ''}
+                  quality={m.quality ?? null}
+                  episode={m.episode_current ?? null}
+                  year={m.year ?? null}
+                  duration={m.time ?? null}
+                />
+              ))}
+            </div>
+          </section>
+        )}
       </main>
     </div>
   );

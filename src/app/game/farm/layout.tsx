@@ -11,13 +11,13 @@ export const metadata: Metadata = {
     siteName: "NhungMov",
     title: "Nông Trại Vui Vẻ | NhungMov",
     description: "Chơi game nông trại vui vẻ trực tuyến miễn phí. Trồng trọt, chăm sóc cây trồng và thu hoạch tại NhungMov.",
-    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: "Nông Trại Vui Vẻ" }],
+    images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "Nông Trại Vui Vẻ" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Nông Trại Vui Vẻ | NhungMov",
     description: "Chơi game nông trại vui vẻ trực tuyến miễn phí. Trồng trọt, chăm sóc cây trồng và thu hoạch tại NhungMov.",
-    images: ["/og-image.jpg"],
+    images: ["/og-image.svg"],
   },
 };
 

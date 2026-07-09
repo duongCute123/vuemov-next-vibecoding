@@ -235,6 +235,45 @@ export async function deleteComment(commentId: string): Promise<void> {
   });
 }
 
+export async function updateProfile(data: { username?: string; avatar?: string }): Promise<LoginResult> {
+  try {
+    const response = await fetch('/api/auth/update', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    const result = await response.json();
+    if (result.success) {
+      if (result.data) {
+        _user = {
+          id: result.data.id,
+          email: result.data.email,
+          username: result.data.username,
+          avatar: result.data.avatar,
+        };
+      }
+      return { success: true };
+    }
+    return { success: false, message: result.message || 'Update failed' };
+  } catch (error: any) {
+    return { success: false, message: error.message || 'Update failed' };
+  }
+}
+
+export async function changePassword(currentPassword: string, newPassword: string): Promise<LoginResult> {
+  try {
+    const response = await fetch('/api/auth/change-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+    const result = await response.json();
+    return { success: result.success, message: result.message };
+  } catch (error: any) {
+    return { success: false, message: error.message || 'Change password failed' };
+  }
+}
+
 export async function checkHealth(): Promise<boolean> {
   try {
     const response = await fetchApi<{ success: boolean; data: { status: string } }>('/api/health');

@@ -190,6 +190,8 @@ export default async function AdvancedSearchPage({
                   subTitle={movie.lang ?? movie.episode_current ?? movie.quality ?? ''}
                   quality={movie.quality ?? ''}
                   episode={movie.episode_current ?? ''}
+                  year={movie.year ?? null}
+                  duration={movie.time ?? null}
                 />
               ))}
             </div>

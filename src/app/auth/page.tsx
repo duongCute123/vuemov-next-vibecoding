@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 
@@ -16,6 +16,10 @@ export default function AuthPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    document.title = isLogin ? 'Đăng nhập | NhungMov' : 'Đăng ký | NhungMov';
+  }, [isLogin]);
   const { login, register } = useAuth();
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
@@ -45,9 +49,8 @@ export default function AuthPage() {
   }, [isLogin]);
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
+    <main className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.1),transparent_40%),radial-gradient(circle_at_bottom_right,rgba(168,85,247,0.1),transparent_40%)]" aria-hidden="true" />
-      
       <div className="relative w-full max-w-md animate-fade-in-up"
       >
         <div className="bg-zinc-900/80 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl">
@@ -192,6 +195,6 @@ export default function AuthPage() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

@@ -11,6 +11,8 @@ import { homePageMetadata } from "@/lib/metadata";
 export const metadata: Metadata = homePageMetadata();
 
 const HeroSlideshow = dynamic(() => import("@/components/HeroSlideshow"));
+const ContinueWatching = dynamic(() => import("@/components/ContinueWatching"));
+const Recommendations = dynamic(() => import("@/components/Recommendations"));
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -49,8 +51,10 @@ const jsonLd = {
 };
 
 export default async function Home() {
+  const ITEMS_PER_SECTION = 12;
+
   const [newMovies, categories, animeData] = await Promise.all([
-    getNewUpdatedMovies({ limit: 30 }).catch(() => ({ items: [] })),
+    getNewUpdatedMovies({ limit: ITEMS_PER_SECTION * 5 + 5 }).catch(() => ({ items: [] })),
     getTheLoaiList().catch(() => []),
     getMoviesByCategory("hoat-hinh", { limit: 5 }).catch(() => ({ items: [] })),
   ]);
@@ -80,13 +84,12 @@ export default async function Home() {
         lang: m.lang,
         content: m.content,
       }));
-  const latestMovies = newMovies.items.slice(1, 7);
   const topCategories = categories.slice(0, 12);
 
-  const actionMovies = newMovies.items.slice(7, 13);
-  const animeMovies = newMovies.items.slice(13, 19);
-  const horrorMovies = newMovies.items.slice(19, 25);
-  const thaiMovies = newMovies.items.slice(25, 30);
+  const actionMovies = newMovies.items.slice(ITEMS_PER_SECTION, ITEMS_PER_SECTION * 2);
+  const animeMovies = newMovies.items.slice(ITEMS_PER_SECTION * 2, ITEMS_PER_SECTION * 3);
+  const horrorMovies = newMovies.items.slice(ITEMS_PER_SECTION * 3, ITEMS_PER_SECTION * 4);
+  const thaiMovies = newMovies.items.slice(ITEMS_PER_SECTION * 4, ITEMS_PER_SECTION * 5);
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
@@ -97,6 +100,9 @@ export default async function Home() {
 
       <main id="main-content" className="pb-12" tabIndex={-1}>
         <HeroSlideshow movies={heroMovies} />
+
+        <ContinueWatching />
+        <Recommendations />
 
         <AnimatedSection className="mx-auto max-w-7xl px-4 py-6">
           <div className="mb-6 flex items-center justify-between">
@@ -137,10 +143,11 @@ export default async function Home() {
                   slug={movie.slug}
                   title={movie.name}
                   posterUrl={resolveImageUrl(movie.poster_url) ?? resolveImageUrl(movie.thumb_url)}
-                  subTitle={movie.lang ?? movie.episode_current ?? ''}
+                  subTitle={movie.lang ?? movie.episode_current ?? movie.quality ?? ''}
                   quality={movie.quality ?? null}
                   episode={movie.episode_current ?? null}
                   year={movie.year ?? null}
+                  duration={movie.time ?? null}
                 />
               </AnimatedCard>
             ))}
@@ -161,10 +168,11 @@ export default async function Home() {
                   slug={movie.slug}
                   title={movie.name}
                   posterUrl={resolveImageUrl(movie.poster_url) ?? resolveImageUrl(movie.thumb_url)}
-                  subTitle={movie.lang ?? movie.episode_current ?? ''}
+                  subTitle={movie.lang ?? movie.episode_current ?? movie.quality ?? ''}
                   quality={movie.quality ?? null}
                   episode={movie.episode_current ?? null}
                   year={movie.year ?? null}
+                  duration={movie.time ?? null}
                 />
               </AnimatedCard>
             ))}
@@ -185,10 +193,11 @@ export default async function Home() {
                   slug={movie.slug}
                   title={movie.name}
                   posterUrl={resolveImageUrl(movie.poster_url) ?? resolveImageUrl(movie.thumb_url)}
-                  subTitle={movie.lang ?? movie.episode_current ?? ''}
+                  subTitle={movie.lang ?? movie.episode_current ?? movie.quality ?? ''}
                   quality={movie.quality ?? null}
                   episode={movie.episode_current ?? null}
                   year={movie.year ?? null}
+                  duration={movie.time ?? null}
                 />
               </AnimatedCard>
             ))}
@@ -209,10 +218,11 @@ export default async function Home() {
                   slug={movie.slug}
                   title={movie.name}
                   posterUrl={resolveImageUrl(movie.poster_url) ?? resolveImageUrl(movie.thumb_url)}
-                  subTitle={movie.lang ?? movie.episode_current ?? ''}
+                  subTitle={movie.lang ?? movie.episode_current ?? movie.quality ?? ''}
                   quality={movie.quality ?? null}
                   episode={movie.episode_current ?? null}
                   year={movie.year ?? null}
+                  duration={movie.time ?? null}
                 />
               </AnimatedCard>
             ))}

@@ -12,16 +12,17 @@ export const metadata: Metadata = createPageMetadata(
   "/phim-vietsub",
 );
 
-type PageProps = { searchParams: Promise<{ page?: string }> };
+type PageProps = { searchParams: Promise<{ page?: string; sort?: string }> };
 
 export default async function Page({ searchParams }: PageProps) {
-  const { page: rawPage } = await searchParams;
+  const { page: rawPage, sort: rawSort } = await searchParams;
   const pageNum = Number.parseInt(rawPage || "1", 10);
   const page = Number.isFinite(pageNum) ? pageNum : 1;
+  const sortType = rawSort === "asc" ? "asc" : "desc";
 
   const [categories, movies] = await Promise.all([
     getTheLoaiList().catch(() => []),
-    getNewUpdatedMovies({ page, limit: 24, type_list: "phim-vietsub" }).catch(() => ({ items: [] })),
+    getNewUpdatedMovies({ page, limit: 24, type_list: "phim-vietsub", sort_type: sortType }).catch(() => ({ items: [] })),
   ]);
 
   const topCategories = categories.slice(0, 12);
@@ -63,7 +64,13 @@ export default async function Page({ searchParams }: PageProps) {
             <Link href="/" className="text-purple-400 hover:text-purple-300">Quay về trang chủ</Link>
           </div>
         ) : (
-          <div className="movie-grid grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-12 gap-y-6">
+          <>
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+              <span className="text-xs text-zinc-500 mr-1">Sắp xếp:</span>
+              <Link href={`?page=1&sort=desc`} className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${sortType === "desc" ? "bg-purple-600/30 text-purple-300 border border-purple-500/30" : "bg-zinc-800 text-zinc-400 border border-zinc-700 hover:border-zinc-600"}`}>Mới nhất</Link>
+              <Link href={`?page=1&sort=asc`} className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${sortType === "asc" ? "bg-purple-600/30 text-purple-300 border border-purple-500/30" : "bg-zinc-800 text-zinc-400 border border-zinc-700 hover:border-zinc-600"}`}>Cũ nhất</Link>
+            </div>
+            <div className="movie-grid grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-12 gap-y-6">
             {movies.items.map((movie) => (
               <MovieCard
                 key={movie.slug}
@@ -74,16 +81,18 @@ export default async function Page({ searchParams }: PageProps) {
                 quality={movie.quality ?? null}
                 episode={movie.episode_current ?? null}
                 year={movie.year ?? null}
+                duration={movie.time ?? null}
               />
             ))}
           </div>
+          </>
         )}
 
         {movies.items.length > 0 && (
           <div className="mt-8 flex items-center justify-center gap-3">
-            <Link href={`?page=${prevPage}`} className="px-5 py-2 rounded-xl bg-zinc-800 border border-zinc-700 text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white transition-all duration-300">← Trang trước</Link>
+            <Link href={`?page=${prevPage}&sort=${sortType}`} className="px-5 py-2 rounded-xl bg-zinc-800 border border-zinc-700 text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white transition-all duration-300">← Trang trước</Link>
             <span className="px-4 py-2 bg-purple-600/20 text-purple-400 rounded-xl text-sm font-medium">Trang {page}</span>
-            <Link href={`?page=${nextPage}`} className="px-5 py-2 rounded-xl bg-zinc-800 border border-zinc-700 text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white transition-all duration-300">Trang tiếp →</Link>
+            <Link href={`?page=${nextPage}&sort=${sortType}`} className="px-5 py-2 rounded-xl bg-zinc-800 border border-zinc-700 text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white transition-all duration-300">Trang tiếp →</Link>
           </div>
         )}
       </main>

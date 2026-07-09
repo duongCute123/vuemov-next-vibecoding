@@ -131,25 +131,28 @@ export async function getNewUpdatedMovies(opts?: {
 
 export async function getTheLoaiList(): Promise<TheLoaiItem[]> {
   const url = `${PHIMAPI_BASE}/the-loai`;
-  return phimapiFetchJson<TheLoaiItem[]>(url, 3600);
+  const json = await phimapiFetchJson<{ status?: string; data?: { items?: TheLoaiItem[] } }>(url, 3600);
+  return json.data?.items ?? [];
 }
 
-export async function getMoviesByCategory(slug: string, opts?: { page?: number; limit?: number; sort_lang?: string }): Promise<MovieListResult> {
+export async function getMoviesByCategory(slug: string, opts?: { page?: number; limit?: number; sort_lang?: string; sort_type?: "asc" | "desc" }): Promise<MovieListResult> {
   const page = opts?.page ?? 1;
   const limit = opts?.limit ?? 24;
   const sort_lang = opts?.sort_lang ?? "vietsub";
+  const sort_type = opts?.sort_type ?? "desc";
 
-  const url = `${PHIMAPI_BASE}/v1/api/the-loai/${encodeURIComponent(slug)}?page=${page}&sort_field=modified.time&sort_type=desc&sort_lang=${encodeURIComponent(sort_lang)}&limit=${limit}`;
+  const url = `${PHIMAPI_BASE}/v1/api/the-loai/${encodeURIComponent(slug)}?page=${page}&sort_field=modified.time&sort_type=${sort_type}&sort_lang=${encodeURIComponent(sort_lang)}&limit=${limit}`;
   const json = await phimapiFetchJson<ApiResponse<MovieListData>>(url);
   return { items: json.data?.items ?? [] };
 }
 
-export async function searchMovies(keyword: string, opts?: { page?: number; limit?: number; sort_lang?: string }): Promise<SearchResult> {
+export async function searchMovies(keyword: string, opts?: { page?: number; limit?: number; sort_lang?: string; sort_type?: "asc" | "desc" }): Promise<SearchResult> {
   const page = opts?.page ?? 1;
   const limit = opts?.limit ?? 24;
   const sort_lang = opts?.sort_lang ?? "vietsub";
+  const sort_type = opts?.sort_type ?? "desc";
 
-  const url = `${PHIMAPI_BASE}/v1/api/tim-kiem?keyword=${encodeURIComponent(keyword)}&page=${page}&sort_field=_id&sort_type=asc&sort_lang=${encodeURIComponent(sort_lang)}&limit=${limit}`;
+  const url = `${PHIMAPI_BASE}/v1/api/tim-kiem?keyword=${encodeURIComponent(keyword)}&page=${page}&sort_field=_id&sort_type=${sort_type}&sort_lang=${encodeURIComponent(sort_lang)}&limit=${limit}`;
   const json = await phimapiFetchJson<ApiResponse<SearchResult>>(url);
   return {
     items: json.data?.items ?? [],
@@ -171,25 +174,28 @@ export interface QuocGiaItem {
 
 export async function getQuocGiaList(): Promise<QuocGiaItem[]> {
   const url = `${PHIMAPI_BASE}/quoc-gia`;
-  return phimapiFetchJson<QuocGiaItem[]>(url, 3600);
+  const json = await phimapiFetchJson<{ status?: string; data?: { items?: QuocGiaItem[] } }>(url, 3600);
+  return json.data?.items ?? [];
 }
 
-export async function getMoviesByCountry(slug: string, opts?: { page?: number; limit?: number; sort_lang?: string }): Promise<MovieListResult> {
+export async function getMoviesByCountry(slug: string, opts?: { page?: number; limit?: number; sort_lang?: string; sort_type?: "asc" | "desc" }): Promise<MovieListResult> {
   const page = opts?.page ?? 1;
   const limit = opts?.limit ?? 24;
   const sort_lang = opts?.sort_lang ?? "vietsub";
+  const sort_type = opts?.sort_type ?? "desc";
 
-  const url = `${PHIMAPI_BASE}/v1/api/quoc-gia/${encodeURIComponent(slug)}?page=${page}&sort_field=_id&sort_type=asc&sort_lang=${encodeURIComponent(sort_lang)}&limit=${limit}`;
+  const url = `${PHIMAPI_BASE}/v1/api/quoc-gia/${encodeURIComponent(slug)}?page=${page}&sort_field=modified.time&sort_type=${sort_type}&sort_lang=${encodeURIComponent(sort_lang)}&limit=${limit}`;
   const json = await phimapiFetchJson<ApiResponse<MovieListData>>(url);
   return { items: json.data?.items ?? [] };
 }
 
-export async function getMoviesByYear(year: number, opts?: { page?: number; limit?: number; sort_lang?: string }): Promise<MovieListResult> {
+export async function getMoviesByYear(year: number, opts?: { page?: number; limit?: number; sort_lang?: string; sort_type?: "asc" | "desc" }): Promise<MovieListResult> {
   const page = opts?.page ?? 1;
   const limit = opts?.limit ?? 24;
   const sort_lang = opts?.sort_lang ?? "vietsub";
+  const sort_type = opts?.sort_type ?? "desc";
 
-  const url = `${PHIMAPI_BASE}/v1/api/nam/${year}?page=${page}&sort_field=modified.time&sort_type=desc&sort_lang=${encodeURIComponent(sort_lang)}&limit=${limit}`;
+  const url = `${PHIMAPI_BASE}/v1/api/nam/${year}?page=${page}&sort_field=modified.time&sort_type=${sort_type}&sort_lang=${encodeURIComponent(sort_lang)}&limit=${limit}`;
   const json = await phimapiFetchJson<ApiResponse<MovieListData>>(url);
   return { items: json.data?.items ?? [] };
 }

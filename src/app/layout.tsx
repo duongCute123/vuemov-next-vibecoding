@@ -3,6 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import { ReduxProvider } from "@/lib/store/ReduxProvider";
+import dynamic from "next/dynamic";
+
+const AIChatBot = dynamic(() => import("@/components/AIChatBot"));
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -58,7 +61,7 @@ export const metadata: Metadata = {
     description: "NhungMov - Xem phim online miễn phí, phim mới nhất, phim chất lượng cao, vietsub",
     images: [
       {
-        url: "/og-image.jpg",
+        url: "/og-image.svg",
         width: 1200,
         height: 630,
         alt: "NhungMov - Xem phim online",
@@ -69,7 +72,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "NhungMov - Xem phim online miễn phí",
     description: "NhungMov - Xem phim online miễn phí, phim mới nhất, phim chất lượng cao, vietsub",
-    images: ["/og-image.jpg"],
+    images: ["/og-image.svg"],
   },
   alternates: {
     canonical: "https://nhungmov.vercel.app",
@@ -99,7 +102,10 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col">
         <ReduxProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            {children}
+            <AIChatBot />
+          </AuthProvider>
         </ReduxProvider>
       </body>
     </html>

@@ -105,9 +105,15 @@ export default function HeroSlideshow({ movies }: { movies: HeroMovie[] }) {
               {movie.quality ?? 'HD'} • {movie.episode_current ?? 'Mới'}
             </div>
 
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3">
-              {movie.name}
-            </h1>
+            {i === current ? (
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3">
+                {movie.name}
+              </h1>
+            ) : (
+              <div className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3">
+                {movie.name}
+              </div>
+            )}
 
             <div className="flex items-center gap-3 text-sm text-zinc-400 mb-4">
               {movie.year && <span>{movie.year}</span>}

@@ -5,6 +5,8 @@ import { useAuth } from '@/lib/auth-context';
 import { getMovieDetail, resolveImageUrl, type MovieListItem } from '@/lib/phimapi';
 import { getFavorites } from '@/lib/api-service';
 import MovieCard from '@/components/MovieCard';
+import SiteHeader from '@/components/SiteHeader';
+import SiteFooter from '@/components/SiteFooter';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -14,6 +16,10 @@ export default function FavouritePage() {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [favoriteMovies, setFavoriteMovies] = useState<MovieListItem[]>([]);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    document.title = 'Phim yêu thích | NhungMov';
+  }, []);
 
   const loadFavorites = useCallback(async () => {
     if (!user) return;
@@ -55,14 +61,16 @@ export default function FavouritePage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+      <main className="min-h-screen bg-zinc-950 flex items-center justify-center">
         <div className="text-cyan-400 text-xl">Đang tải...</div>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
+    <main className="min-h-screen bg-zinc-950 text-zinc-100">
+      <SiteHeader />
+      
       <div className="relative border-b border-white/10 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(239,68,68,0.15),transparent_30%),radial-gradient(circle_at_left,rgba(168,85,247,0.12),transparent_25%)]" />
         <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/60 to-zinc-950" />
@@ -108,6 +116,8 @@ export default function FavouritePage() {
           </div>
         )}
       </div>
-    </div>
+
+      <SiteFooter />
+    </main>
   );
 }

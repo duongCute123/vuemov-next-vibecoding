@@ -11,6 +11,8 @@ import {
   clearHistory
 } from '@/lib/api-service';
 import MovieCard from '@/components/MovieCard';
+import SiteHeader from '@/components/SiteHeader';
+import SiteFooter from '@/components/SiteFooter';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Suspense } from 'react';
@@ -25,6 +27,10 @@ function ProfileContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const tab = searchParams.get('tab') || 'profile';
+
+  useEffect(() => {
+    document.title = 'Hồ sơ cá nhân | NhungMov';
+  }, []);
   
   const [favorites, setFavorites] = useState<string[]>([]);
   const [history, setHistory] = useState<HistoryItem[]>([]);
@@ -123,9 +129,9 @@ function ProfileContent() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+      <main className="min-h-screen bg-zinc-950 flex items-center justify-center">
         <div className="text-cyan-400 text-xl">Đang tải...</div>
-      </div>
+      </main>
     );
   }
 
@@ -140,13 +146,20 @@ function ProfileContent() {
   ];
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
+    <main className="min-h-screen bg-zinc-950 text-zinc-100">
+      <SiteHeader />
+
       <div className="relative border-b border-white/10 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(34,211,238,0.15),transparent_30%),radial-gradient(circle_at_left,rgba(168,85,247,0.12),transparent_25%)]" />
         <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/60 to-zinc-950" />
         
         <div className="relative mx-auto max-w-7xl px-4 py-10 md:px-6">
           <div className="flex items-center gap-6">
+            <Link href="/" className="text-zinc-400 hover:text-white">
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+            </Link>
             <div className="h-24 w-24 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-4xl font-black text-zinc-950 shadow-xl">
               {user.username.charAt(0).toUpperCase()}
             </div>
@@ -204,6 +217,16 @@ function ProfileContent() {
                   <span className="text-white">{user.username}</span>
                 </div>
               </div>
+              <Link
+                href="/settings"
+                className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-400/20 text-cyan-300 text-sm font-medium hover:bg-cyan-400/30 transition"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Cài đặt
+              </Link>
             </div>
 
             <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-cyan-500/10 via-zinc-900/70 to-fuchsia-500/10 p-6 backdrop-blur">
@@ -299,16 +322,18 @@ function ProfileContent() {
           </div>
         )}
       </div>
-    </div>
+
+      <SiteFooter />
+    </main>
   );
 }
 
 export default function ProfilePage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+      <main className="min-h-screen bg-zinc-950 flex items-center justify-center">
         <div className="text-cyan-400 text-xl">Đang tải...</div>
-      </div>
+      </main>
     }>
       <ProfileContent />
     </Suspense>

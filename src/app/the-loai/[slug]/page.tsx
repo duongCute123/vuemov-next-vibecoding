@@ -36,15 +36,20 @@ export default async function CategoryPage({
   searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; sort?: string; lang?: string }>;
 }) {
   const { slug } = await params;
-  const { page: rawPage } = await searchParams;
+  const { page: rawPage, sort: rawSort, lang: rawLang } = await searchParams;
   const pageNum = Number.parseInt(rawPage || "1", 10);
+  const sortType = rawSort === "asc" ? "asc" : "desc";
+  const sortLang = rawLang || "all";
+
+  const apiOpts: { page: number; sort_type: "asc" | "desc"; sort_lang?: string } = { page: Number.isFinite(pageNum) ? pageNum : 1, sort_type: sortType };
+  if (sortLang !== "all") apiOpts.sort_lang = sortLang;
 
   const [categories, res] = await Promise.all([
     getTheLoaiList().catch(() => []),
-    getMoviesByCategory(slug, { page: Number.isFinite(pageNum) ? pageNum : 1 }).catch(() => ({ items: [] })),
+    getMoviesByCategory(slug, apiOpts).catch(() => ({ items: [] })),
   ]);
 
   const current = categories.find((c) => c.slug === slug) || null;
@@ -80,7 +85,18 @@ export default async function CategoryPage({
         {res.items.length === 0 ? (
           <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-8 text-zinc-400">Không tìm thấy phim cho thể loại này.</div>
         ) : (
-          <div className="movie-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-12 gap-3">
+          <>
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+              <span className="text-xs text-zinc-500 mr-1">Sắp xếp:</span>
+              <Link href={`/the-loai/${encodeURIComponent(slug)}?page=1&sort=desc&lang=${sortLang}`} className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${sortType === "desc" ? "bg-purple-600/30 text-purple-300 border border-purple-500/30" : "bg-zinc-800 text-zinc-400 border border-zinc-700 hover:border-zinc-600"}`}>Mới nhất</Link>
+              <Link href={`/the-loai/${encodeURIComponent(slug)}?page=1&sort=asc&lang=${sortLang}`} className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${sortType === "asc" ? "bg-purple-600/30 text-purple-300 border border-purple-500/30" : "bg-zinc-800 text-zinc-400 border border-zinc-700 hover:border-zinc-600"}`}>Cũ nhất</Link>
+              <span className="text-xs text-zinc-500 ml-2 mr-1">Ngôn ngữ:</span>
+              <Link href={`/the-loai/${encodeURIComponent(slug)}?page=1&sort=${sortType}&lang=vietsub`} className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${sortLang === "vietsub" ? "bg-purple-600/30 text-purple-300 border border-purple-500/30" : "bg-zinc-800 text-zinc-400 border border-zinc-700 hover:border-zinc-600"}`}>Vietsub</Link>
+              <Link href={`/the-loai/${encodeURIComponent(slug)}?page=1&sort=${sortType}&lang=thuyet-minh`} className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${sortLang === "thuyet-minh" ? "bg-purple-600/30 text-purple-300 border border-purple-500/30" : "bg-zinc-800 text-zinc-400 border border-zinc-700 hover:border-zinc-600"}`}>Thuyết minh</Link>
+              <Link href={`/the-loai/${encodeURIComponent(slug)}?page=1&sort=${sortType}&lang=long-tieng`} className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${sortLang === "long-tieng" ? "bg-purple-600/30 text-purple-300 border border-purple-500/30" : "bg-zinc-800 text-zinc-400 border border-zinc-700 hover:border-zinc-600"}`}>Lồng tiếng</Link>
+              <Link href={`/the-loai/${encodeURIComponent(slug)}?page=1&sort=${sortType}&lang=all`} className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${sortLang === "all" ? "bg-purple-600/30 text-purple-300 border border-purple-500/30" : "bg-zinc-800 text-zinc-400 border border-zinc-700 hover:border-zinc-600"}`}>Tất cả</Link>
+            </div>
+            <div className="movie-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-12 gap-3">
             {res.items.map((m) => (
               <MovieCard
                 key={m.slug}
@@ -90,20 +106,23 @@ export default async function CategoryPage({
                 subTitle={m.episode_current ?? m.quality ?? "N/A"}
                 quality={m.quality ?? null}
                 episode={m.episode_current ?? null}
+                year={m.year ?? null}
+                duration={m.time ?? null}
               />
             ))}
           </div>
+          </>
         )}
 
         <div className="mt-6 flex items-center justify-between">
           <Link
-            href={`/the-loai/${encodeURIComponent(slug)}?page=${prevPage}`}
+            href={`/the-loai/${encodeURIComponent(slug)}?page=${prevPage}&sort=${sortType}&lang=${sortLang}`}
             className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2 text-sm text-cyan-200 hover:bg-zinc-700"
           >
             Trang trước
           </Link>
           <Link
-            href={`/the-loai/${encodeURIComponent(slug)}?page=${nextPage}`}
+            href={`/the-loai/${encodeURIComponent(slug)}?page=${nextPage}&sort=${sortType}&lang=${sortLang}`}
             className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2 text-sm text-cyan-200 hover:bg-zinc-700"
           >
             Trang tiếp

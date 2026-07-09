@@ -15,15 +15,20 @@ export const metadata: Metadata = createPageMetadata(
 export default async function PhimMoiPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; sort?: string; lang?: string }>;
 }) {
-  const { page: rawPage } = await searchParams;
+  const { page: rawPage, sort: rawSort, lang: rawLang } = await searchParams;
   const pageNum = Number.parseInt(rawPage || "1", 10);
   const page = Number.isFinite(pageNum) ? pageNum : 1;
+  const sortType = rawSort === "asc" ? "asc" : "desc";
+  const sortLang = rawLang || "all";
+
+  const apiOpts: { page: number; limit: number; sort_type: "asc" | "desc"; type_list?: string; sort_lang?: string } = { page, limit: 24, sort_type: sortType };
+  if (sortLang !== "all") apiOpts.sort_lang = sortLang;
 
   const [categories, movies] = await Promise.all([
     getTheLoaiList().catch(() => []),
-    getNewUpdatedMovies({ page, limit: 24 }).catch(() => ({ items: [] })),
+    getNewUpdatedMovies(apiOpts).catch(() => ({ items: [] })),
   ]);
 
   const topCategories = categories.slice(0, 12);
@@ -65,7 +70,18 @@ export default async function PhimMoiPage({
             <Link href="/" className="text-purple-400 hover:text-purple-300">Quay về trang chủ</Link>
           </div>
         ) : (
-          <div className="movie-grid grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-12 gap-y-6">
+          <>
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+              <span className="text-xs text-zinc-500 mr-1">Sắp xếp:</span>
+              <Link href={`/phim-moi?page=1&sort=desc&lang=${sortLang}`} className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${sortType === "desc" ? "bg-purple-600/30 text-purple-300 border border-purple-500/30" : "bg-zinc-800 text-zinc-400 border border-zinc-700 hover:border-zinc-600"}`}>Mới nhất</Link>
+              <Link href={`/phim-moi?page=1&sort=asc&lang=${sortLang}`} className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${sortType === "asc" ? "bg-purple-600/30 text-purple-300 border border-purple-500/30" : "bg-zinc-800 text-zinc-400 border border-zinc-700 hover:border-zinc-600"}`}>Cũ nhất</Link>
+              <span className="text-xs text-zinc-500 ml-2 mr-1">Ngôn ngữ:</span>
+              <Link href={`/phim-moi?page=1&sort=${sortType}&lang=vietsub`} className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${sortLang === "vietsub" ? "bg-purple-600/30 text-purple-300 border border-purple-500/30" : "bg-zinc-800 text-zinc-400 border border-zinc-700 hover:border-zinc-600"}`}>Vietsub</Link>
+              <Link href={`/phim-moi?page=1&sort=${sortType}&lang=thuyet-minh`} className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${sortLang === "thuyet-minh" ? "bg-purple-600/30 text-purple-300 border border-purple-500/30" : "bg-zinc-800 text-zinc-400 border border-zinc-700 hover:border-zinc-600"}`}>Thuyết minh</Link>
+              <Link href={`/phim-moi?page=1&sort=${sortType}&lang=long-tieng`} className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${sortLang === "long-tieng" ? "bg-purple-600/30 text-purple-300 border border-purple-500/30" : "bg-zinc-800 text-zinc-400 border border-zinc-700 hover:border-zinc-600"}`}>Lồng tiếng</Link>
+              <Link href={`/phim-moi?page=1&sort=${sortType}&lang=all`} className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${sortLang === "all" ? "bg-purple-600/30 text-purple-300 border border-purple-500/30" : "bg-zinc-800 text-zinc-400 border border-zinc-700 hover:border-zinc-600"}`}>Tất cả</Link>
+            </div>
+            <div className="movie-grid grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-12 gap-y-6">
             {movies.items.map((movie) => (
               <MovieCard
                 key={movie.slug}
@@ -76,15 +92,17 @@ export default async function PhimMoiPage({
                 quality={movie.quality ?? null}
                 episode={movie.episode_current ?? null}
                 year={movie.year ?? null}
+                duration={movie.time ?? null}
               />
             ))}
           </div>
+          </>
         )}
 
         {movies.items.length > 0 && (
           <div className="mt-8 flex items-center justify-center gap-3">
             <Link
-              href={`/phim-moi?page=${prevPage}`}
+              href={`/phim-moi?page=${prevPage}&sort=${sortType}&lang=${sortLang}`}
               className="px-5 py-2 rounded-xl bg-zinc-800 border border-zinc-700 text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white transition-all duration-300"
             >
               ← Trang trước
@@ -93,7 +111,7 @@ export default async function PhimMoiPage({
               Trang {page}
             </span>
             <Link
-              href={`/phim-moi?page=${nextPage}`}
+              href={`/phim-moi?page=${nextPage}&sort=${sortType}&lang=${sortLang}`}
               className="px-5 py-2 rounded-xl bg-zinc-800 border border-zinc-700 text-sm text-zinc-300 hover:bg-zinc-700 hover:text-white transition-all duration-300"
             >
               Trang tiếp →

@@ -370,7 +370,7 @@ export default function FarmGame() {
   const playerEmoji = ["⬆️", "➡️", "⬇️", "⬅️"][direction];
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white overflow-hidden">
+    <main className="min-h-screen bg-zinc-950 text-white overflow-hidden">
       <div className="flex items-center justify-between p-4 bg-zinc-900/80">
         <div className="flex items-center gap-4">
           <h1 className="text-xl font-black">🌾 Nông Trại Vui Vẻ</h1>
@@ -622,6 +622,6 @@ export default function FarmGame() {
           </motion.div>
         ))}
       </AnimatePresence>
-    </div>
+    </main>
   );
 }

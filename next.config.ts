@@ -5,19 +5,7 @@ const nextConfig: NextConfig = {
     root: __dirname,
   },
   images: {
-    remotePatterns: [
-      { protocol: "https", hostname: "phimimg.com" },
-      { protocol: "https", hostname: "**.phimimg.com" },
-      { protocol: "https", hostname: "img.ophim9.com" },
-      { protocol: "https", hostname: "**.ophim9.com" },
-      { protocol: "https", hostname: "phimapi.com" },
-      { protocol: "https", hostname: "**.phimapi.com" },
-      { protocol: "https", hostname: "image.tmdb.org" },
-    ],
-    formats: ["image/webp", "image/avif"],
-    deviceSizes: [480, 640, 768, 1024, 1280, 1536],
-    imageSizes: [96, 128, 256, 384],
-    minimumCacheTTL: 31536000,
+    unoptimized: true,
   },
   async headers() {
     return [
