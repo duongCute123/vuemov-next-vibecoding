@@ -105,6 +105,7 @@ export interface MovieEpisode {
 
 export interface MovieListResult {
   items: MovieListItem[];
+  pagination?: { totalItems: number; totalPages: number; currentPage: number };
 }
 
 export interface SearchResult extends MovieListResult {
@@ -125,8 +126,8 @@ export async function getNewUpdatedMovies(opts?: {
   const sort_type = opts?.sort_type ?? "desc";
 
   const url = `${PHIMAPI_BASE}/v1/api/danh-sach/${type_list}?page=${page}&sort_field=modified.time&sort_type=${sort_type}&sort_lang=${sort_lang}&limit=${limit}`;
-  const json = await phimapiFetchJson<ApiResponse<MovieListData>>(url);
-  return { items: json.data?.items ?? [] };
+  const json = await phimapiFetchJson<ApiResponse<MovieListData & { params?: { pagination?: { totalItems: number; totalPages: number; currentPage: number } } }>>(url);
+  return { items: json.data?.items ?? [], pagination: json.data?.params?.pagination };
 }
 
 export async function getTheLoaiList(): Promise<TheLoaiItem[]> {
