@@ -69,38 +69,48 @@ export default function AdminPage() {
   const [trend, setTrend] = useState<TrendDay[]>([]);
   const [recent, setRecent] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
+    setLoading(true);
+    setFetchError(null);
     try {
-      const [dashRes, devRes, brRes, osRes, topRes, trendRes, recRes] = await Promise.all([
-        fetch('/api/analytics/dashboard'),
-        fetch('/api/analytics/devices'),
-        fetch('/api/analytics/browsers'),
-        fetch('/api/analytics/os'),
-        fetch('/api/analytics/top-movies?limit=10'),
-        fetch('/api/analytics/trend?days=7'),
-        fetch('/api/analytics/recent?limit=20'),
+      const safeFetch = async (url: string) => {
+        try {
+          const res = await fetch(url);
+          const json = await res.json();
+          return json.success ? json.data : null;
+        } catch {
+          return null;
+        }
+      };
+
+      const [dashData, devData, brData, osData, topData, trendData, recData] = await Promise.all([
+        safeFetch('/api/analytics/dashboard'),
+        safeFetch('/api/analytics/devices'),
+        safeFetch('/api/analytics/browsers'),
+        safeFetch('/api/analytics/os'),
+        safeFetch('/api/analytics/top-movies?limit=10'),
+        safeFetch('/api/analytics/trend?days=7'),
+        safeFetch('/api/analytics/recent?limit=20'),
       ]);
 
-      const [dash, dev, br, os, top, trendData, rec] = await Promise.all([
-        dashRes.json(),
-        devRes.json(),
-        brRes.json(),
-        osRes.json(),
-        topRes.json(),
-        trendRes.json(),
-        recRes.json(),
-      ]);
+      if (dashData) setStats(dashData);
+      if (devData) setDevices(devData);
+      if (brData) setBrowsers(brData);
+      if (osData) setOsList(osData);
+      if (topData) setTopMovies(topData);
+      if (trendData) setTrend(trendData);
+      if (recData) setRecent(recData);
 
-      if (dash.success) setStats(dash.data);
-      if (dev.success) setDevices(dev.data);
-      if (br.success) setBrowsers(br.data);
-      if (os.success) setOsList(os.data);
-      if (top.success) setTopMovies(top.data);
-      if (trendData.success) setTrend(trendData.data);
-      if (rec.success) setRecent(rec.data);
+      const failed = [dashData, devData, brData, osData, topData, trendData, recData].filter((d) => d === null).length;
+      if (failed === 7) {
+        setFetchError('Không thể kết nối đến server. Vui lòng thử lại.');
+      } else if (failed > 0) {
+        setFetchError(`Một số dữ liệu không tải được (${failed}/7 API lỗi).`);
+      }
     } catch {
-      // error
+      setFetchError('Lỗi khi tải dữ liệu dashboard.');
     } finally {
       setLoading(false);
     }
@@ -127,6 +137,20 @@ export default function AdminPage() {
   }
 
   if (!user || user.role !== 'admin') return null;
+
+  if (fetchError && !stats && devices.length === 0) {
+    return (
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <div className="text-red-400 text-lg font-medium mb-2">{fetchError}</div>
+          <p className="text-zinc-500 text-sm mb-4">Backend có thể đang khởi động lại, vui lòng đợi vài giây.</p>
+          <button onClick={fetchData} className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm font-medium transition-colors">
+            Thử lại
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const deviceChartData = {
     labels: devices.map((d) => d.name),
@@ -201,6 +225,15 @@ export default function AdminPage() {
           <h1 className="text-2xl font-bold text-white">Admin Dashboard</h1>
           <p className="text-zinc-500 text-sm mt-1">Thống kê truy cập và xem phim</p>
         </div>
+
+        {fetchError && (
+          <div className="mb-6 px-4 py-3 bg-amber-500/10 border border-amber-500/30 rounded-lg flex items-center justify-between">
+            <span className="text-amber-400 text-sm">{fetchError}</span>
+            <button onClick={fetchData} className="px-3 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 rounded text-xs font-medium transition-colors">
+              Tải lại
+            </button>
+          </div>
+        )}
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <StatCard label="Hôm nay" value={stats?.todayVisits ?? 0} icon="eye" color="purple" />
