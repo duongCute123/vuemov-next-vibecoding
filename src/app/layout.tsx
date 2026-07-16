@@ -6,6 +6,7 @@ import { ReduxProvider } from "@/lib/store/ReduxProvider";
 import dynamic from "next/dynamic";
 
 const AIChatBot = dynamic(() => import("@/components/AIChatBot"));
+const PageTracker = dynamic(() => import("@/components/PageTracker"));
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -61,7 +62,7 @@ export const metadata: Metadata = {
     description: "NhungMov - Xem phim online miễn phí, phim mới nhất, phim chất lượng cao, vietsub",
     images: [
       {
-        url: "/og-image.svg",
+        url: "/og-image.png",
         width: 1200,
         height: 630,
         alt: "NhungMov - Xem phim online",
@@ -72,7 +73,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "NhungMov - Xem phim online miễn phí",
     description: "NhungMov - Xem phim online miễn phí, phim mới nhất, phim chất lượng cao, vietsub",
-    images: ["/og-image.svg"],
+    images: ["/og-image.png"],
   },
   alternates: {
     canonical: "https://nhungmov.vercel.app",
@@ -103,6 +104,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <ReduxProvider>
           <AuthProvider>
+            <PageTracker />
             {children}
             <AIChatBot />
           </AuthProvider>

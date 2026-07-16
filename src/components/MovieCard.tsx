@@ -18,6 +18,7 @@ interface MovieCardProps {
   duration?: string | null;
   origin?: string | null;
   slideshowImages?: string[];
+  priority?: boolean;
 }
 
 export default function MovieCard({
@@ -31,6 +32,7 @@ export default function MovieCard({
   duration,
   origin,
   slideshowImages,
+  priority = false,
 }: MovieCardProps) {
   const [imgError, setImgError] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -92,7 +94,8 @@ export default function MovieCard({
                   src={src}
                   alt={`${title} - hình ${i + 1}`}
                   fill
-                  sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1536px) 20vw, 8vw"
+                  priority={priority && i === 0}
+                  sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 16vw"
                   className={`object-cover transition-all duration-1000 ${i === slideIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-105'}`}
                 />
               ))}
@@ -114,7 +117,8 @@ export default function MovieCard({
                 src={posterUrl}
                 alt={title}
                 fill
-                sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1536px) 20vw, 8vw"
+                priority={priority}
+                sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 16vw"
                 className={`object-cover transition-all duration-700 ${isHovered ? 'scale-110' : 'scale-100'}`}
                 onError={() => setImgError(true)}
                 onLoad={() => setIsLoading(false)}

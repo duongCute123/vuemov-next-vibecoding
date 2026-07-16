@@ -271,7 +271,7 @@ export default function ChineseLearning() {
               </div>
 
               <div className="mt-6 p-4 bg-amber-500/20 rounded-xl text-center">
-                <p className="text-amber-300">💡 Mẹo: Nhấn nút "Nghe" rồi lặp theo để luyện phát âm</p>
+                <p className="text-amber-300">💡 Mẹo: Nhấn nút &quot;Nghe&quot; rồi lặp theo để luyện phát âm</p>
               </div>
             </motion.div>
           )}

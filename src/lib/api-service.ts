@@ -13,6 +13,7 @@ export interface User {
   email: string;
   username: string;
   avatar?: string;
+  role?: string;
 }
 
 async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
@@ -69,8 +70,9 @@ export async function login(email: string, password: string): Promise<LoginResul
     }
 
     return { success: false, message: data.message || 'Login failed' };
-  } catch (error: any) {
-    return { success: false, message: error.message || 'Login failed' };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Login failed';
+    return { success: false, message };
   }
 }
 
@@ -96,8 +98,9 @@ export async function register(email: string, username: string, password: string
     }
 
     return { success: false, message: data.message || 'Registration failed' };
-  } catch (error: any) {
-    return { success: false, message: error.message || 'Registration failed' };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Registration failed';
+    return { success: false, message };
   }
 }
 
@@ -255,8 +258,9 @@ export async function updateProfile(data: { username?: string; avatar?: string }
       return { success: true };
     }
     return { success: false, message: result.message || 'Update failed' };
-  } catch (error: any) {
-    return { success: false, message: error.message || 'Update failed' };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Update failed';
+    return { success: false, message };
   }
 }
 
@@ -269,8 +273,9 @@ export async function changePassword(currentPassword: string, newPassword: strin
     });
     const result = await response.json();
     return { success: result.success, message: result.message };
-  } catch (error: any) {
-    return { success: false, message: error.message || 'Change password failed' };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Change password failed';
+    return { success: false, message };
   }
 }
 

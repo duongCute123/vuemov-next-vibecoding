@@ -83,7 +83,7 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ sl
   const detail = movie as MovieDetail | null;
   const firstCategory = detail?.category?.[0]?.slug;
   const relatedMovies: MovieListItem[] = firstCategory
-    ? (await getNewUpdatedMovies({ type_list: "phim-vietsub", limit: 12 }).catch(() => ({ items: [] }))).items.filter((m) => m.slug !== slug).slice(0, 6)
+    ? (await getNewUpdatedMovies({ type_list: firstCategory, limit: 12 }).catch(() => ({ items: [] }))).items.filter((m) => m.slug !== slug).slice(0, 6)
     : [];
   const title = detail?.name || detail?.origin_name || slug;
   const originTitle = detail?.origin_name && detail.origin_name !== title ? detail.origin_name : null;
@@ -385,7 +385,7 @@ export default async function MovieDetailPage({ params }: { params: Promise<{ sl
               </div>
               <Link href="/phim" className="text-sm text-cyan-400 hover:text-cyan-300">Xem thêm →</Link>
             </div>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-12">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-y-6">
               {relatedMovies.map((m) => (
                 <MovieCard
                   key={m.slug}

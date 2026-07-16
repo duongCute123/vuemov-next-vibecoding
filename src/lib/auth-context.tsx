@@ -6,7 +6,7 @@ import { fetchFavorites } from './store/moviesSlice';
 import { setToken, setCurrentUser } from './api-service';
 
 interface AuthContextType {
-  user: { id: string; email: string; username: string; avatar?: string } | null;
+  user: { id: string; email: string; username: string; avatar?: string; role?: string } | null;
   loading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>;
@@ -48,11 +48,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const result = await dispatch(loginAction({ email, password })).unwrap();
       if (result) {
+        dispatch(fetchFavorites());
         return { success: true };
       }
       return { success: false, message: error || 'Login failed' };
-    } catch (err: any) {
-      return { success: false, message: err || 'Login failed' };
+    } catch (err: unknown) {
+      return { success: false, message: (typeof err === 'string' ? err : null) || 'Login failed' };
     }
   };
 
@@ -60,11 +61,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const result = await dispatch(registerAction({ email, username, password })).unwrap();
       if (result) {
+        dispatch(fetchFavorites());
         return { success: true };
       }
       return { success: false, message: error || 'Registration failed' };
-    } catch (err: any) {
-      return { success: false, message: err || 'Registration failed' };
+    } catch (err: unknown) {
+      return { success: false, message: (typeof err === 'string' ? err : null) || 'Registration failed' };
     }
   };
 

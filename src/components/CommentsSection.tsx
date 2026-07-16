@@ -29,7 +29,7 @@ export default function CommentsSection({ slug, movieTitle }: CommentsSectionPro
 
   useEffect(() => {
     loadComments();
-  }, [slug]);
+  }, [slug]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadComments = async () => {
     try {
@@ -85,7 +85,7 @@ export default function CommentsSection({ slug, movieTitle }: CommentsSectionPro
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
           <h3 className="text-lg font-semibold text-white">Bình luận & Đánh giá</h3>
-          <p className="text-sm text-zinc-400">Chia sẻ cảm nghĩ về "{movieTitle}"</p>
+          <p className="text-sm text-zinc-400">Chia sẻ cảm nghĩ về &quot;{movieTitle}&quot;</p>
         </div>
         {averageRating && (
           <div className="flex items-center gap-2">

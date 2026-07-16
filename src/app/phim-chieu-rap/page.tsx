@@ -61,7 +61,7 @@ export default async function PhimChieuRapPage({ searchParams }: PageProps) {
               <Link href={`?page=1&sort=${sortType}&lang=long-tieng`} className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${sortLang === "long-tieng" ? "bg-purple-600/30 text-purple-300 border border-purple-500/30" : "bg-zinc-800 text-zinc-400 border border-zinc-700 hover:border-zinc-600"}`}>Lồng tiếng</Link>
               <Link href={`?page=1&sort=${sortType}&lang=all`} className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${sortLang === "all" ? "bg-purple-600/30 text-purple-300 border border-purple-500/30" : "bg-zinc-800 text-zinc-400 border border-zinc-700 hover:border-zinc-600"}`}>Tất cả</Link>
             </div>
-            <div className="movie-grid grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-12 gap-y-6">
+            <div className="movie-grid grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-y-6">
             {movies.items.map((movie) => (
               <MovieCard key={movie.slug} slug={movie.slug} title={movie.name} posterUrl={resolveImageUrl(movie.poster_url) ?? resolveImageUrl(movie.thumb_url)} subTitle={movie.lang ?? movie.episode_current ?? movie.quality ?? ''} quality={movie.quality ?? null} episode={movie.episode_current ?? null} year={movie.year ?? null} duration={movie.time ?? null} />
             ))}

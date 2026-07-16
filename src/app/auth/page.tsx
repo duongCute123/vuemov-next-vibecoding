@@ -40,7 +40,7 @@ export default function AuthPage() {
       setError(result.message || 'Có lỗi xảy ra');
     }
     setLoading(false);
-  }, [isLogin, email, password, username, login, register]);
+  }, [isLogin, email, password, username, login, register, redirectTo]);
 
   const toggleMode = useCallback(() => {
     setIsLogin(!isLogin);

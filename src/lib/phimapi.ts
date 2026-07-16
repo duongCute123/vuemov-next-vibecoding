@@ -10,11 +10,6 @@ export function resolveImageUrl(url?: string | null): string | null {
   return `${PHIMIMG_CDN}/${resolved}`;
 }
 
-interface ApiError {
-  status: boolean;
-  msg: string;
-}
-
 interface MovieListData {
   items: MovieListItem[];
 }

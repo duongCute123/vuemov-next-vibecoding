@@ -5,7 +5,7 @@ const baseUrl = "https://nhungmov.vercel.app";
 
 export function createPageMetadata(title: string, description: string, canonicalPath: string, ogImage?: string): Metadata {
   const canonical = `${baseUrl}${canonicalPath}`;
-  const img = ogImage ?? "/og-image.svg";
+  const img = ogImage ?? "/og-image.png";
 
   return {
     title,
@@ -40,13 +40,13 @@ export function homePageMetadata(): Metadata {
       siteName,
       title: "NhungMov - Xem phim online miễn phí",
       description: "NhungMov - Xem phim online miễn phí, phim mới nhất, phim chất lượng cao, vietsub",
-      images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "NhungMov - Xem phim online" }],
+      images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "NhungMov - Xem phim online" }],
     },
     twitter: {
       card: "summary_large_image",
       title: "NhungMov - Xem phim online miễn phí",
       description: "NhungMov - Xem phim online miễn phí, phim mới nhất, phim chất lượng cao, vietsub",
-      images: ["/og-image.svg"],
+      images: ["/og-image.png"],
     },
   };
 }

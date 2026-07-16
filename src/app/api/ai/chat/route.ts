@@ -26,10 +26,11 @@ export async function POST(request: NextRequest) {
     const reply = await callAI(allMessages, { temperature: 0.7, maxTokens: 500 });
 
     return NextResponse.json({ success: true, message: reply });
-  } catch (error: any) {
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Server error';
     return NextResponse.json({
       success: false,
-      message: error.message || 'Server error',
+      message,
     }, { status: 500 });
   }
 }

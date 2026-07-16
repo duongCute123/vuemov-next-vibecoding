@@ -48,9 +48,10 @@ export async function PUT(request: NextRequest) {
     }
 
     return NextResponse.json(data, { status: response.ok ? 200 : response.status });
-  } catch (error: any) {
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Server error';
     return NextResponse.json(
-      { success: false, message: error.message || 'Server error' },
+      { success: false, message },
       { status: 500 }
     );
   }

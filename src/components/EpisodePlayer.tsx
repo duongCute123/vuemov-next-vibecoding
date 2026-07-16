@@ -14,13 +14,6 @@ type ServerData = {
   }>;
 };
 
-type EpisodeItem = {
-  name: string;
-  slug: string;
-  link_embed?: string;
-  link_m3u8?: string;
-};
-
 export default function EpisodePlayer(props: {
   servers: ServerData[];
   movieSlug: string;
@@ -29,22 +22,22 @@ export default function EpisodePlayer(props: {
   const [activeServerIndex, setActiveServerIndex] = useState(0);
   
   const currentServer = servers[activeServerIndex];
-  const episodes = currentServer?.server_data?.map((ep) => ({
+  const episodes = useMemo(() => currentServer?.server_data?.map((ep) => ({
     name: ep.name,
     slug: ep.slug,
     link_embed: ep.link_embed,
     link_m3u8: ep.link_m3u8,
-  })) ?? [];
+  })) ?? [], [currentServer]);
   
-  const first = episodes[0] ?? null;
-  const [active, setActive] = useState<EpisodeItem | null>(first);
+  const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
   const { user } = useAuth();
 
-  useEffect(() => {
-    if (currentServer?.server_data?.length) {
-      setActive(currentServer.server_data[0]);
+  const active = useMemo(() => {
+    if (selectedSlug) {
+      return episodes.find(e => e.slug === selectedSlug) ?? episodes[0] ?? null;
     }
-  }, [activeServerIndex]);
+    return episodes[0] ?? null;
+  }, [selectedSlug, episodes]);
 
   const activeSrc = useMemo(() => {
     if (!active) return null;
@@ -89,7 +82,7 @@ export default function EpisodePlayer(props: {
             <button
               key={e.slug}
               type="button"
-              onClick={() => setActive(e)}
+              onClick={() => setSelectedSlug(e.slug)}
               className={[
                 "px-2 py-2 text-xs rounded-lg border transition-colors",
                 active?.slug === e.slug 

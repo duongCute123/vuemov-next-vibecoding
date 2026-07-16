@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
+import { useAppSelector } from "@/lib/store/hooks";
 
 type HeaderCategory = {
   name: string;
@@ -54,6 +55,7 @@ export default function SiteHeader({
   const searchParams = useSearchParams();
   const searchValue = searchParams.get("q") ?? "";
   const { user, logout } = useAuth();
+  const favorites = useAppSelector((state) => state.movies.favorites);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -167,7 +169,11 @@ export default function SiteHeader({
                 <svg className="w-5 h-5 text-zinc-400 group-hover:text-pink-400 transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                 </svg>
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-pink-500 to-red-500 rounded-full text-[10px] font-bold text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">0</span>
+                {favorites.length > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 bg-gradient-to-r from-pink-500 to-red-500 rounded-full text-[10px] font-bold text-white flex items-center justify-center">
+                    {favorites.length}
+                  </span>
+                )}
               </Link>
 
               {user ? (
@@ -243,9 +249,12 @@ export default function SiteHeader({
               ) : (
                 <Link
                   href="/auth"
-                  className="group relative px-5 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-bold rounded-full overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/40 hover:scale-105 active:scale-95"
+                  className="group relative flex items-center gap-1.5 px-3 py-2 sm:px-5 sm:py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs sm:text-sm font-bold rounded-full overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/40 hover:scale-105 active:scale-95"
                 >
-                  <span className="relative z-10">Đăng nhập</span>
+                  <svg className="w-4 h-4 sm:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  <span className="relative z-10 hidden sm:inline">Đăng nhập</span>
                   <div className="absolute inset-0 bg-gradient-to-r from-pink-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </Link>
               )}

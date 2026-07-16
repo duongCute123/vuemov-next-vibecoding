@@ -4,11 +4,14 @@ import { getTheLoaiList, resolveImageUrl, searchMovies } from "@/lib/phimapi";
 import type { Metadata } from "next";
 import { createPageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = createPageMetadata(
-  "Tìm kiếm phim",
-  "Tìm kiếm phim yêu thích. Xem phim online miễn phí, phim vietsub, phim hd chất lượng cao.",
-  "/search",
-);
+export const metadata: Metadata = {
+  ...createPageMetadata(
+    "Tìm kiếm phim",
+    "Tìm kiếm phim yêu thích. Xem phim online miễn phí, phim vietsub, phim hd chất lượng cao.",
+    "/search",
+  ),
+  robots: { index: false, follow: false },
+};
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string; page?: string }> }) {
   const { q: rawQ, page: rawPage } = await searchParams;
@@ -65,7 +68,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             </Link>
           </div>
         ) : (
-          <div className="movie-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-12 gap-3">
+          <div className="movie-grid grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-y-6">
             {items.map((m) => (
               <MovieCard
                 key={m.slug}

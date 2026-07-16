@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getMovieDetail, getNewUpdatedMovies } from '@/lib/phimapi';
+import { getMovieDetail, getNewUpdatedMovies, type MovieDetail, type MovieListItem } from '@/lib/phimapi';
 import { callAIJSON, isAIConfigured } from '@/lib/ai';
 
 export async function POST(request: NextRequest) {
@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     }
 
     const prompt = watchedMovies.length > 0
-      ? `Dựa vào lịch sử xem: ${JSON.stringify(watchedMovies.map((m: any) => ({ name: m?.name, category: m?.category?.map((c: any) => c.name), country: m?.country?.map((c: any) => c.name) })))}. Hãy đề xuất 5 thể loại/quốc gia phù hợp (trả về JSON array dạng ["category-slug1", "country-slug2"])`
+      ? `Dựa vào lịch sử xem: ${JSON.stringify(watchedMovies.map((m: MovieDetail | null) => ({ name: m?.name, category: m?.category?.map((c: { name: string; slug: string }) => c.name), country: m?.country?.map((c: { name: string; slug: string }) => c.name) })))}. Hãy đề xuất 5 thể loại/quốc gia phù hợp (trả về JSON array dạng ["category-slug1", "country-slug2"])`
       : 'Hãy đề xuất 5 thể loại phim hot nhất hiện tại (trả về JSON array dạng ["category-slug1", ...])';
 
     const suggestions = await callAIJSON<string[]>([
@@ -31,8 +31,8 @@ export async function POST(request: NextRequest) {
     );
     const moviesResults = await Promise.all(moviesPromises);
 
-    const seen = new Set(slugs || []);
-    const items: any[] = [];
+    const seen = new Set<string>(slugs || []);
+    const items: MovieListItem[] = [];
     for (const res of moviesResults) {
       for (const m of res.items) {
         if (!seen.has(m.slug)) {

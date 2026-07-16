@@ -4,11 +4,14 @@ import { PHIMAPI_BASE, getTheLoaiList, getQuocGiaList, resolveImageUrl, type Mov
 import type { Metadata } from 'next';
 import { createPageMetadata } from '@/lib/metadata';
 
-export const metadata: Metadata = createPageMetadata(
-  'Tìm kiếm nâng cao',
-  'Tìm kiếm phim nâng cao với nhiều bộ lọc: thể loại, quốc gia, năm, chất lượng. Xem phim online miễn phí tại NhungMov.',
-  '/advanced-search',
-);
+export const metadata: Metadata = {
+  ...createPageMetadata(
+    'Tìm kiếm nâng cao',
+    'Tìm kiếm phim nâng cao với nhiều bộ lọc: thể loại, quốc gia, năm, chất lượng. Xem phim online miễn phí tại NhungMov.',
+    '/advanced-search',
+  ),
+  robots: { index: false, follow: false },
+};
 
 const YEARS = Array.from({ length: 20 }, (_, i) => String(2025 - i));
 const QUALITIES = ['HD', 'Full HD', '4K', '1080p', '720p'];
@@ -180,7 +183,7 @@ export default async function AdvancedSearchPage({
         ) : (
           <>
             <p className="mb-4 text-sm text-zinc-400">Tìm thấy {movies.length} phim</p>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-12">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-y-6">
               {movies.map((movie) => (
                 <MovieCard
                   key={movie.slug}

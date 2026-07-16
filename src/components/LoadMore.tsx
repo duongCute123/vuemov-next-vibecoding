@@ -36,7 +36,7 @@ export default function LoadMore({ initialItems, type_list, sort_type, sort_lang
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-12 gap-y-6">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-y-6">
         {items.map((movie) => (
           <MovieCard
             key={movie.slug}

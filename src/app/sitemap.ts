@@ -2,7 +2,7 @@ import { getTheLoaiList, getQuocGiaList, getNewUpdatedMovies } from '@/lib/phima
 import { MetadataRoute } from 'next';
 
 const MAX_LIMIT = 64;
-const MAX_PAGES = 5;
+const MAX_PAGES = 20;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://nhungmov.vercel.app';
@@ -37,9 +37,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/tv-shows`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: 0.7 },
     { url: `${baseUrl}/sap-chieu`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.7 },
     { url: `${baseUrl}/countries`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.6 },
-    { url: `${baseUrl}/search`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.6 },
-    { url: `${baseUrl}/advanced-search`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: 0.6 },
-    { url: `${baseUrl}/auth`, lastModified: new Date(), changeFrequency: 'monthly' as const, priority: 0.5 },
   ];
 
   const categoryPages = categories.map((cat) => ({
@@ -58,7 +55,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const movieSitemapPages = allMovies.map((movie) => ({
     url: `${baseUrl}/phim/${movie.slug}`,
-    lastModified: new Date(),
+    lastModified: movie.modified ? new Date(movie.modified) : new Date(),
     changeFrequency: 'weekly' as const,
     priority: 0.5,
   }));

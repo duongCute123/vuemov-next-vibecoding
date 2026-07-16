@@ -111,8 +111,8 @@ export default async function Home() {
               Xem thêm →
             </Link>
           </div>
-          <AnimatedGrid className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-12 gap-y-6">
-            {newMovies.items.slice(0, 12).map((movie) => (
+          <AnimatedGrid className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-y-6">
+            {newMovies.items.slice(0, 12).map((movie, index) => (
               <AnimatedCard key={movie.slug}>
                 <MovieCard
                   slug={movie.slug}
@@ -123,6 +123,7 @@ export default async function Home() {
                   episode={movie.episode_current ?? null}
                   year={movie.year ?? null}
                   duration={movie.time ?? null}
+                  priority={index === 0}
                 />
               </AnimatedCard>
             ))}
@@ -136,7 +137,7 @@ export default async function Home() {
               Xem thêm →
             </Link>
           </div>
-          <AnimatedGrid className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-12 gap-y-6">
+          <AnimatedGrid className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-y-6">
             {actionMovies.map((movie) => (
               <AnimatedCard key={movie.slug}>
                 <MovieCard
@@ -161,7 +162,7 @@ export default async function Home() {
               Xem thêm →
             </Link>
           </div>
-          <AnimatedGrid className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-12 gap-y-6">
+          <AnimatedGrid className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-y-6">
             {animeMovies.map((movie) => (
               <AnimatedCard key={movie.slug}>
                 <MovieCard
@@ -186,7 +187,7 @@ export default async function Home() {
               Xem thêm →
             </Link>
           </div>
-          <AnimatedGrid className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-12 gap-y-6">
+          <AnimatedGrid className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-y-6">
             {horrorMovies.map((movie) => (
               <AnimatedCard key={movie.slug}>
                 <MovieCard
@@ -211,7 +212,7 @@ export default async function Home() {
               Xem thêm →
             </Link>
           </div>
-          <AnimatedGrid className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-12 gap-y-6">
+          <AnimatedGrid className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-y-6">
             {thaiMovies.map((movie) => (
               <AnimatedCard key={movie.slug}>
                 <MovieCard

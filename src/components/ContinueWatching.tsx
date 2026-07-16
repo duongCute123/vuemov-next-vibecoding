@@ -71,7 +71,7 @@ export default function ContinueWatching() {
           Xem tất cả →
         </Link>
       </div>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-12 gap-y-6">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-y-6">
         {movies.map((movie) => (
           <Link key={movie.slug} href={`/phim/${encodeURIComponent(movie.slug)}`} className="group relative rounded-2xl overflow-hidden bg-gradient-to-b from-zinc-800 to-zinc-900 transition-all duration-500 hover:shadow-2xl hover:shadow-cyan-500/20 hover:-translate-y-2">
             <div className="relative aspect-[2/3] bg-zinc-800 overflow-hidden">

@@ -50,8 +50,8 @@ export default function SettingsPage() {
       if (result) {
         setMessage({ type: 'success', text: 'Cập nhật hồ sơ thành công!' });
       }
-    } catch (err: any) {
-      setMessage({ type: 'error', text: err || 'Cập nhật thất bại' });
+    } catch (err: unknown) {
+      setMessage({ type: 'error', text: (typeof err === 'string' ? err : null) || 'Cập nhật thất bại' });
     } finally {
       setSaving(false);
     }
@@ -78,8 +78,9 @@ export default function SettingsPage() {
       } else {
         setMessage({ type: 'error', text: result.message || 'Đổi mật khẩu thất bại' });
       }
-    } catch (err: any) {
-      setMessage({ type: 'error', text: err.message || 'Đổi mật khẩu thất bại' });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Đổi mật khẩu thất bại';
+      setMessage({ type: 'error', text: message });
     } finally {
       setChangingPassword(false);
     }

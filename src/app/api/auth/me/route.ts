@@ -33,5 +33,9 @@ export async function GET(request: NextRequest) {
     }
   }
 
+  if (user && !user.role) {
+    user.role = 'user';
+  }
+
   return NextResponse.json({ user, token });
 }

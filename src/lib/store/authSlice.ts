@@ -6,6 +6,7 @@ interface User {
   email: string;
   username: string;
   avatar?: string;
+  role?: string;
 }
 
 interface AuthState {
@@ -31,7 +32,7 @@ export const login = createAsyncThunk(
         return getCurrentUser();
       }
       return rejectWithValue(result.message || 'Login failed');
-    } catch (err) {
+    } catch {
       return rejectWithValue('Network error');
     }
   }
@@ -46,7 +47,7 @@ export const register = createAsyncThunk(
         return getCurrentUser();
       }
       return rejectWithValue(result.message || 'Registration failed');
-    } catch (err) {
+    } catch {
       return rejectWithValue('Network error');
     }
   }

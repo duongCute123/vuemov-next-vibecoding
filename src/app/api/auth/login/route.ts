@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
         email: data.data.email,
         username: data.data.username,
         avatar: data.data.avatar,
+        role: data.data.role || 'user',
       };
 
       const res = NextResponse.json(data);
@@ -53,9 +54,9 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(data, { status: response.ok ? 200 : response.status });
-  } catch (error: any) {
+  } catch (error) {
     console.error('Login proxy error:', error);
-    const isConnRefused = error?.cause?.code === 'ECONNREFUSED';
+    const isConnRefused = error instanceof Error && 'cause' in error && typeof error.cause === 'object' && error.cause !== null && 'code' in error.cause && error.cause.code === 'ECONNREFUSED';
     return NextResponse.json(
       {
         success: false,

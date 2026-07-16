@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import MovieCard from "@/components/MovieCard";
 import { getMoviesByCountry, getQuocGiaList, resolveImageUrl } from "@/lib/phimapi";
+import { breadcrumbJsonLd, itemListJsonLd } from "@/lib/metadata";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -22,11 +23,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       siteName: "NhungMov",
       title: `${title} | NhungMov`,
       description,
+      images: [{ url: "/og-image.png", width: 1200, height: 630, alt: `${title} - NhungMov` }],
     },
     twitter: {
       card: "summary_large_image",
       title: `${title} | NhungMov`,
       description,
+      images: ["/og-image.png"],
     },
   };
 }
@@ -54,12 +57,27 @@ export default async function CountryPage({
 
   const current = countries.find((c) => c.slug === slug) || null;
   const title = current?.name ? current.name : `Quốc gia: ${slug}`;
+  const canonical = `https://nhungmov.vercel.app/quoc-gia/${slug}`;
 
   const prevPage = Math.max(1, Number.isFinite(pageNum) ? pageNum - 1 : 1);
   const nextPage = (Number.isFinite(pageNum) ? pageNum : 1) + 1;
 
+  const breadcrumb = breadcrumbJsonLd([
+    { name: "Trang chủ", url: "https://nhungmov.vercel.app" },
+    { name: "Quốc gia", url: "https://nhungmov.vercel.app/countries" },
+    { name: title, url: canonical },
+  ]);
+
+  const itemList = res.items.length > 0 ? itemListJsonLd(res.items.slice(0, 20).map(m => ({
+    name: m.name,
+    url: `https://nhungmov.vercel.app/phim/${m.slug}`,
+    image: resolveImageUrl(m.poster_url) ?? resolveImageUrl(m.thumb_url) ?? undefined,
+  }))) : null;
+
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumb) }} />
+      {itemList && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList) }} />}
       <header className="sticky top-0 z-20 bg-zinc-900/95 backdrop-blur border-b border-white/10">
         <div className="mx-auto max-w-7xl flex flex-wrap items-center justify-between gap-3 px-4 py-3">
           <Link href="/" className="text-2xl font-black text-cyan-400">NhungMov</Link>
@@ -96,7 +114,7 @@ export default async function CountryPage({
               <Link href={`/quoc-gia/${encodeURIComponent(slug)}?page=1&sort=${sortType}&lang=long-tieng`} className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${sortLang === "long-tieng" ? "bg-purple-600/30 text-purple-300 border border-purple-500/30" : "bg-zinc-800 text-zinc-400 border border-zinc-700 hover:border-zinc-600"}`}>Lồng tiếng</Link>
               <Link href={`/quoc-gia/${encodeURIComponent(slug)}?page=1&sort=${sortType}&lang=all`} className={`px-3 py-1.5 rounded-full text-xs font-medium transition ${sortLang === "all" ? "bg-purple-600/30 text-purple-300 border border-purple-500/30" : "bg-zinc-800 text-zinc-400 border border-zinc-700 hover:border-zinc-600"}`}>Tất cả</Link>
             </div>
-            <div className="movie-grid grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-12">
+            <div className="movie-grid grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-y-6">
             {res.items.map((m) => (
               <MovieCard
                 key={m.slug}
