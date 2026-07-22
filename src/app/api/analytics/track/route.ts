@@ -8,7 +8,6 @@ export async function POST(request: NextRequest) {
   if (!body.ip) {
     let ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || '';
     if (!ip) ip = request.headers.get('x-real-ip') || '';
-    if (!ip) ip = request.ip || '';
     if (ip) body.ip = ip;
   }
 
