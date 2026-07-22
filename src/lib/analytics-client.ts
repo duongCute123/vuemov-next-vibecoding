@@ -11,8 +11,6 @@ interface TrackEvent {
   movieSlug?: string;
   userId?: string;
   referrer?: string;
-  latitude?: number;
-  longitude?: number;
 }
 
 function detectDeviceType(): string {
@@ -45,57 +43,23 @@ function detectOS(): string {
   return 'Other';
 }
 
-let cachedLocation: { lat: number; lng: number } | null = null;
-
-function getBrowserLocation(): Promise<{ lat: number; lng: number } | null> {
-  if (cachedLocation) return Promise.resolve(cachedLocation);
-
-  return new Promise((resolve) => {
-    if (!navigator.geolocation) {
-      resolve(null);
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        cachedLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        resolve(cachedLocation);
-      },
-      () => resolve(null),
-      { timeout: 5000, maximumAge: 300000 }
-    );
-  });
-}
-
-async function buildEvent(base: Omit<TrackEvent, 'latitude' | 'longitude'>): Promise<TrackEvent> {
-  const geo = await getBrowserLocation();
-  const event: TrackEvent = { ...base };
-  if (geo) {
-    event.latitude = geo.lat;
-    event.longitude = geo.lng;
-  }
-  return event;
-}
-
 export async function trackPageView(path: string, userId?: string) {
   try {
-    const event = await buildEvent({
-      eventType: 'page_view',
-      userAgent: navigator.userAgent,
-      deviceType: detectDeviceType(),
-      browser: detectBrowser(),
-      os: detectOS(),
-      screenWidth: screen.width,
-      screenHeight: screen.height,
-      path,
-      referrer: document.referrer || undefined,
-      userId,
-    });
-
     await fetch('/api/analytics/track', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(event),
+      body: JSON.stringify({
+        eventType: 'page_view',
+        userAgent: navigator.userAgent,
+        deviceType: detectDeviceType(),
+        browser: detectBrowser(),
+        os: detectOS(),
+        screenWidth: screen.width,
+        screenHeight: screen.height,
+        path,
+        referrer: document.referrer || undefined,
+        userId,
+      }),
     });
   } catch {
     // silently fail
@@ -104,23 +68,21 @@ export async function trackPageView(path: string, userId?: string) {
 
 export async function trackMovieView(slug: string, userId?: string) {
   try {
-    const event = await buildEvent({
-      eventType: 'movie_view',
-      userAgent: navigator.userAgent,
-      deviceType: detectDeviceType(),
-      browser: detectBrowser(),
-      os: detectOS(),
-      screenWidth: screen.width,
-      screenHeight: screen.height,
-      path: `/phim/${slug}`,
-      movieSlug: slug,
-      userId,
-    });
-
     await fetch('/api/analytics/track', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(event),
+      body: JSON.stringify({
+        eventType: 'movie_view',
+        userAgent: navigator.userAgent,
+        deviceType: detectDeviceType(),
+        browser: detectBrowser(),
+        os: detectOS(),
+        screenWidth: screen.width,
+        screenHeight: screen.height,
+        path: `/phim/${slug}`,
+        movieSlug: slug,
+        userId,
+      }),
     });
   } catch {
     // silently fail
